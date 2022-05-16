@@ -1,0 +1,11 @@
+{   
+    "run_modes": ["normal", "testing"],
+    "run_mode": "testing",
+    "devices": [
+        {
+            "dev_name": "ITLA5300",
+            "type": "laser",
+            "enabled": true
+        }
+    ]
+}

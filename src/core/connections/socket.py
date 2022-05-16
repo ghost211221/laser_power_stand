@@ -5,7 +5,7 @@ from .abstract import AbstractConnection
 # TODO: add log
 # TODO: add exceptions handling
 
-class SocketHandler(AbstractConnection):
+class Socket(AbstractConnection):
     connection_type = 'socket'
 
     def __init__(self, ip, port, timeout=1, package_len=1024):

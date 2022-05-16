@@ -5,7 +5,7 @@ from .abstract import AbstractConnection
 # TODO: add log
 # TODO: add exceptions handling
 
-class VisaHandler(AbstractConnection):
+class Visa(AbstractConnection):
     connection_type = 'visa'
 
     def __init__(self, ipaddr : str, dev_type='TCPIP') -> None:

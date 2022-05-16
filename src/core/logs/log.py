@@ -1,37 +1,31 @@
 import sys
 import os
 import logging
-from threading import queue
+from queue import Queue
 
 
-class Logger():
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(LoggingQueue, cls).__new__(cls)
-        return cls.instance
-        
-    def __init__(self):
-        # создаём формировщик логов (formatter):
-        self.CLIENT_FORMATTER = logging.Formatter('%(asctime)s %(levelname)s %(filename)s %(message)s')
+def init_log():
+    # создаём формировщик логов (formatter):
+    CLIENT_FORMATTER = logging.Formatter('%(asctime)s %(levelname)s %(filename)s %(message)s')
 
-        # Подготовка имени файла для логирования
-        self.PATH = os.path.dirname(os.path.abspath(__file__))
-        self.PATH = os.path.join(self.PATH, 'laser_power_meter.log')
+    # Подготовка имени файла для логирования
+    PATH = os.path.dirname(os.path.abspath(__file__))
+    PATH = os.path.join(PATH, 'laser_power_meter.log')
 
-        # создаём потоки вывода логов
-        self.STREAM_HANDLER = logging.StreamHandler(sys.stderr)
-        self.STREAM_HANDLER.setFormatter(self.CLIENT_FORMATTER)
-        self.STREAM_HANDLER.setLevel(logging.INFO)
-        # self.STREAM_HANDLER.setLevel(CONSTS["logging_level"])
-        self.LOG_FILE = logging.FileHandler(self.PATH, encoding='utf8')
-        self.LOG_FILE.setFormatter(self.CLIENT_FORMATTER)
+    # создаём потоки вывода логов
+    STREAM_HANDLER = logging.StreamHandler(sys.stderr)
+    STREAM_HANDLER.setFormatter(CLIENT_FORMATTER)
+    STREAM_HANDLER.setLevel(logging.INFO)
+    # self.STREAM_HANDLER.setLevel(CONSTS["logging_level"])
+    LOG_FILE = logging.FileHandler(PATH, encoding='utf8')
+    LOG_FILE.setFormatter(CLIENT_FORMATTER)
 
-        # создаём регистратор и настраиваем его
-        self.LOGGER = logging.getLogger('main')
-        # self.LOGGER.addHandler(self.STREAM_HANDLER)
-        self.LOGGER.addHandler(self.LOG_FILE)
-        # self.LOGGER.setLevel(CONSTS["logging_level"])
-        self.LOGGER.setLevel(logging.INFO)
+    # создаём регистратор и настраиваем его
+    LOGGER = logging.getLogger('main')
+    # self.LOGGER.addHandler(self.STREAM_HANDLER)
+    LOGGER.addHandler(LOG_FILE)
+    # self.LOGGER.setLevel(CONSTS["logging_level"])
+    LOGGER.setLevel(logging.INFO)
 
 
 class LoggingQueue(object):
@@ -41,4 +35,12 @@ class LoggingQueue(object):
         return cls.instance
 
     def __init__(self):
-        self.queue = queue
+        self.__queue = queue
+
+    def put(self, data, timeout=None):
+        self.__queue.put(data, timeout=timeout)
+
+    def get(self, timeout=None):
+        self.__queue.get(timeout=timeout)
+
+    
