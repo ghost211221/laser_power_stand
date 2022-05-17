@@ -1,6 +1,6 @@
 import logging
 
-from src.core.logs.log import LoggingQueue
+from .log import LoggingQueue
 
 
 log = logging.getLogger(__name__)

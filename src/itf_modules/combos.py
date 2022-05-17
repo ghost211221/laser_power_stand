@@ -1,4 +1,4 @@
-from src.core.context import Context
+from core.context import Context
 
 context = Context()
 

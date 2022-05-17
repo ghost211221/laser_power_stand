@@ -1,5 +1,4 @@
-from serial.tools import list_ports
+import serial.tools.list_ports
 
 def get_comports_list():
-    return list_ports.comports() or []
-
+    return serial.tools.list_ports.comports() or []

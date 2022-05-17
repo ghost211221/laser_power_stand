@@ -6,13 +6,15 @@ def enumerate_entities(path: str):
     -- path - path like src.core.utils    
     """
     path_ = path.replace('.', '/')
-
-    files = set(os.listdir(path_))
+    dirs = [name for name in os.listdir(path_) if os.path.isdir(os.path.join(path_, name))]
+    
     modules = []
-    for file in files:
-        if file.startswith('__') or file == 'abstract.py':
+    for dir_name in dirs:
+        if '__' in dir_name:
             continue
-        modules.append(importlib.import_module('.' + file.replace('.py', ''), path))
+        
+        path_ = '.'.join(path.split('.')[1:])
+        modules.append(importlib.import_module(f'{path_}.{dir_name}.{dir_name}'))
 
     return modules
 

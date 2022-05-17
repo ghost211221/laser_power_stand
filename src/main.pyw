@@ -46,13 +46,14 @@ def init_comports():
 
 
 def main():
+    
+    init_context()
     # init log, get connectiond and devices classes, put them to context
     init_log()
     init_entities('src.core.connections', 'connection_type', 'connections_classes')
     init_entities('src.devices', 'dev_name', 'devices_classes')
 
     # create enabled devices instances
-    init_context()
     init_devices()
 
     init_comports()
