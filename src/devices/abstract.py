@@ -33,3 +33,7 @@ class AbstractDevice(metaclass=ABCMeta):
     @abstractmethod
     def io(self, data):
         pass
+
+    @abstractmethod
+    def init(self):
+        pass

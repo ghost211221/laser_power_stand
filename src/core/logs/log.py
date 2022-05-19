@@ -10,7 +10,7 @@ def init_log():
 
     # Подготовка имени файла для логирования
     PATH = os.path.dirname(os.path.abspath(__file__))
-    PATH = os.path.join(PATH, 'laser_power_meter.log')
+    PATH = os.path.join(PATH, '..', '..', '..', 'laser_power_meter.log')
 
     # создаём потоки вывода логов
     STREAM_HANDLER = logging.StreamHandler(sys.stderr)

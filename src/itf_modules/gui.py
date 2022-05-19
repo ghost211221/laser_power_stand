@@ -241,9 +241,9 @@ class Ui_MainWindow(object):
         self.comboBox_10.setWhatsThis("")
         self.comboBox_10.setObjectName("comboBox_10")
         self.devGrid.addWidget(self.comboBox_10, 11, 1, 1, 1)
-        self.laserITLACOnPortCombo = QtWidgets.QComboBox(self.devicesTab)
-        self.laserITLACOnPortCombo.setObjectName("laserITLACOnPortCombo")
-        self.devGrid.addWidget(self.laserITLACOnPortCombo, 2, 2, 1, 1)
+        self.laserITLAComPortCombo = QtWidgets.QComboBox(self.devicesTab)
+        self.laserITLAComPortCombo.setObjectName("laserITLAComPortCombo")
+        self.devGrid.addWidget(self.laserITLAComPortCombo, 2, 2, 1, 1)
         self.lineEdit_2 = QtWidgets.QLineEdit(self.devicesTab)
         self.lineEdit_2.setEnabled(False)
         self.lineEdit_2.setToolTip("")
@@ -1704,7 +1704,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionLoad)
         self.menuFile.addAction(self.actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
-
+        
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         self.actionExit.triggered.connect(MainWindow.close) # type: ignore
