@@ -1,4 +1,7 @@
+from threading import Thread
+
 from core.context import Context
+from core.exceptions import DeviceNotFoundError
 
 context = Context()
 
@@ -26,8 +29,16 @@ class DevicesPanHandler():
     def handle_itla_comport_select(self):
         self.itlaConnection.setEnabled(True)
         
-    def handle_itla_connect(self):        
-        context.devices.get('ITLA5300').get('instance').set_connection(self.laserITLAComTypeCombo.currentText())
-        context.devices.get('ITLA5300').get('instance').set_addr(self.laserITLAComPortCombo.currentText())
+    def handle_itla_connect(self):
+        dev_dict = context.get_device('ITLA5300')
+        if not dev_dict:
+            raise DeviceNotFoundError('ITLA5300')
         
-        context.devices.get('ITLA5300').get('instance').connect()
+        dev_dict.get('instance').set_connection(self.laserITLAComTypeCombo.currentText())
+        dev_dict.get('instance').set_addr(self.laserITLAComPortCombo.currentText())
+        
+        dev_dict.get('instance').connect()
+        # all device operations are in threads!
+        itla5300_init_thread = Thread(target=dev_dict.get('instance').init)
+        itla5300_init_thread.start()
+        

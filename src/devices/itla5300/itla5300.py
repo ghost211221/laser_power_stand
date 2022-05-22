@@ -1,3 +1,4 @@
+import os
 from copy import copy
 import struct
 import logging
@@ -112,6 +113,7 @@ class ITLA5300(AbstractDevice):
     def __init__(self):
         self.baudrate = None
         self.__helper = Helper()
+        self.__q = LoggingQueue()
 
     def set_connection(self, connection_type):
         self.connection_type = connection_type
@@ -139,25 +141,41 @@ class ITLA5300(AbstractDevice):
         self.connection.io()
         
     def init(self):
-        with open('init_proc.yaml') as f:
+        with open(os.path.join(os.path.dirname(__file__), 'init_proc.yml')) as f:
             data = yaml.safe_load(f)
             
-        if not self.connection or not self.connect.connected:
+        if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
             
             
-        LoggingQueue().put(f'Init {self.dev_name} on {self.dev_addr}\n=============================')
-        for data_set in data:
-            self.__helper.setRW(data_set['rw'])
-            self.__helper.setRegData(data_set['data'])
-            self.__helper.setRegAddr(data_set['cmd'])
+        self.__q.put(f'Init {self.dev_name} on {self.dev_addr}\n=============\n')
+        for i, data_set in enumerate(data):
+            try:
+                self.__helper.setRW(data_set['rw'])
+                self.__helper.setRegData(data_set['data'])
+                self.__helper.setRegAddr(data_set['cmd'])
+            except KeyError as e:
+                log.error(f'failed to get operation {i+1}')
+                continue
             
             bytes = self.__helper.genData()
 
             try:
                 ans = self.connection.io(bytes)
-                LoggingQueue().put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+                self.__q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+                self.__q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')                
+        
+    
+if __name__ == '__main__':
+    helper = Helper()
+    
+    helper.setRW(0)
+    helper.setRegAddr(37)
+    helper.setRegData(271)
+    
+    print(helper.genData())
     

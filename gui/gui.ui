@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout_2" rowstretch="0" columnstretch="6,0">
+     <layout class="QGridLayout" name="gridLayout_2" rowstretch="0" columnstretch="6,3">
       <property name="leftMargin">
        <number>5</number>
       </property>
@@ -68,7 +68,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="devicesTab">
             <attribute name="title">
@@ -1016,7 +1016,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1035,7 +1035,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1054,7 +1054,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1073,7 +1073,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1092,7 +1092,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1111,7 +1111,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1130,7 +1130,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1149,7 +1149,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1168,7 +1168,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -1187,7 +1187,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../pics/lamp_init.png</pixmap>
+                  <pixmap>C:/Users/Ghost/.designer/pics/lamp_init.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -3678,6 +3678,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QTextEdit" name="logTE">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
               <property name="readOnly">
                <bool>true</bool>
               </property>
@@ -3699,7 +3704,7 @@
      <x>0</x>
      <y>0</y>
      <width>1217</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -24,6 +24,7 @@ def init_log():
     LOGGER = logging.getLogger('main')
     # self.LOGGER.addHandler(self.STREAM_HANDLER)
     LOGGER.addHandler(LOG_FILE)
+    LOGGER.addHandler(STREAM_HANDLER)
     # self.LOGGER.setLevel(CONSTS["logging_level"])
     LOGGER.setLevel(logging.INFO)
 
@@ -35,12 +36,12 @@ class LoggingQueue(object):
         return cls.instance
 
     def __init__(self):
-        self.__queue = queue
+        self.__queue = Queue()
 
     def put(self, data, timeout=None):
         self.__queue.put(data, timeout=timeout)
 
     def get(self, timeout=None):
-        self.__queue.get(timeout=timeout)
+        return self.__queue.get(timeout=timeout)
 
     
