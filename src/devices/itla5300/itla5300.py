@@ -130,6 +130,13 @@ class ITLA5300(AbstractDevice):
     def connect(self):
         self.connection = Com(self.dev_addr)
         self.connection.connect()
+        self.status = 'idle'
+        self.__q.put(f'\n{self.dev_name} connected to {self.dev_addr}')
+
+    def close(self):
+        self.connection.close()
+        self.status = 'init'
+        self.__q.put(f'\n{self.dev_name} disconnected from {self.dev_addr}')
 
     def send(self, data):
         self.connection.send(data)
@@ -148,7 +155,8 @@ class ITLA5300(AbstractDevice):
             raise ConnectionError(f'Device {self.dev_name} is not connected')
             
             
-        self.__q.put(f'Init {self.dev_name} on {self.dev_addr}\n=============\n')
+        self.__q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
+        self.status = 'processing'
         for i, data_set in enumerate(data):
             try:
                 self.__helper.setRW(data_set['rw'])
@@ -167,7 +175,9 @@ class ITLA5300(AbstractDevice):
                 
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-                self.__q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')                
+                self.__q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+        
+        self.status = 'ready'
         
     
 if __name__ == '__main__':

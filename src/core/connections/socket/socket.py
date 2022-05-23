@@ -8,17 +8,19 @@ from ..abstract import AbstractConnection
 class Socket(AbstractConnection):
     connection_type = 'socket'
 
-    def __init__(self, ip, port, timeout=1, package_len=1024):
-        self.__ip = ip
-        self.__port = port
+    def __init__(self, addr, timeout=1, package_len=1024):
+        self.__addr = addr
+        self.__ip = None
+        self.__port = None
         self.__timeout = timeout
         self.__package_len = package_len
         self.__sock = None
 
     def connect(self):
+        self.__ip, self.__port = self.__addr.split(':')
         self.__sock = socket(AF_INET, SOCK_STREAM)
         self.__sock.settimeout(self.__timeout)
-        self.__sock.connect_ex((self.__ip, self.__port))
+        self.__sock.connect_ex((self.__ip, int(self.__port)))
         self.connected = True
 
     def close(self):

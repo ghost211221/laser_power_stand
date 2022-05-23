@@ -15,7 +15,7 @@ q = LoggingQueue()
 
 class Worker(QObject):
     message = pyqtSignal(str)
-    running = False
+    running = True
     
     @pyqtSlot()
     def process(self):
@@ -27,6 +27,9 @@ class Worker(QObject):
             except Exception:
                 pass
                 
+    def start(self):
+        self.running = True
+        
     def stop(self):
         self.running = False
 
@@ -45,7 +48,7 @@ class ItfHandler(QtWidgets.QMainWindow, Ui_MainWindow, DevicesPanHandler):
     def __launch_queue_process(self):
         self.thread = QThread(self)
         self.worker = Worker()
-        self.worker.running = True
+        self.worker.start()
         
         self.worker.moveToThread(self.thread)
  

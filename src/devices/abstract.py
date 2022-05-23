@@ -8,6 +8,7 @@ class AbstractDevice(metaclass=ABCMeta):
     dev_name = None
     dev_addr = None
     timeout = None
+    status = 'init'
 
     @abstractmethod
     def set_connection(self, connection_type):
@@ -20,6 +21,10 @@ class AbstractDevice(metaclass=ABCMeta):
 
     @abstractmethod
     def connect(self):
+        pass
+
+    @abstractmethod
+    def close(self):
         pass
 
     @abstractmethod
