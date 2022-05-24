@@ -7,17 +7,7 @@ import yaml
 
 from ..abstract import AbstractDevice
 from core.context import Context
-from core.logs.log import LoggingQueue
 from core.exceptions import ConnectionError
-
-# mock connection module for if have no access to devices
-if Context().run_mode == 'testing':
-    from tests.mocks.core.connections.com import Com
-elif Context().run_mode == 'normal':
-    from core.connections.com.com import Com
-else:
-    raise Exception(f'Unkonwn mode "{Context().run_mode}"')
-
 
 log = logging.getLogger(__name__)
 
@@ -111,41 +101,15 @@ class ITLA5300(AbstractDevice):
     dev_name = 'ITLA5300'
 
     def __init__(self):
+        super()
         self.baudrate = None
         self.__helper = Helper()
-        self.__q = LoggingQueue()
-
-    def set_connection(self, connection_type):
-        self.connection_type = connection_type
-
-    def set_addr(self, addr):
-        self.dev_addr = addr
 
     def set_timeout(self, timeout):
         self.timeout = timeout
 
     def set_baudrate(self, baudrate):
         self.baudrate = baudrate
-
-    def connect(self):
-        self.connection = Com(self.dev_addr)
-        self.connection.connect()
-        self.status = 'idle'
-        self.__q.put(f'\n{self.dev_name} connected to {self.dev_addr}')
-
-    def close(self):
-        self.connection.close()
-        self.status = 'init'
-        self.__q.put(f'\n{self.dev_name} disconnected from {self.dev_addr}')
-
-    def send(self, data):
-        self.connection.send(data)
-
-    def read(self):
-        self.connection.read()
-
-    def io(self):
-        self.connection.io()
         
     def init(self):
         with open(os.path.join(os.path.dirname(__file__), 'init_proc.yml')) as f:
@@ -169,7 +133,7 @@ class ITLA5300(AbstractDevice):
             bytes = self.__helper.genData()
 
             try:
-                ans = self.connection.io(bytes)
+                ans = self.io(bytes)
                 self.__q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 

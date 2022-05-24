@@ -50,7 +50,10 @@ def main():
     init_context()
     # init log, get connectiond and devices classes, put them to context
     init_log()
-    init_entities('src.core.connections', 'connection_type', 'connections_classes')
+    connections_path = 'src.core.connections'
+    if context.run_mode == 'testing':
+        connections_path = 'tests.mocks.core.connections'
+    init_entities(connections_path, 'connection_type', 'connections_classes')
     init_entities('src.devices', 'dev_name', 'devices_classes')
 
     # create enabled devices instances

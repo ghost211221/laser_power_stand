@@ -51,6 +51,7 @@ class DevicesPanHandler():
     def handle_signals(self):
         self.laserITLAComPortCombo.currentIndexChanged.connect(self.handle_itla_comport_select)
         self.itlaConnection.clicked.connect(self.handle_itla_connect)
+        self.pm2100Connection.clicked.connect(self.handle_pm2100_connect)
         
     def handle_itla_comport_select(self):
         self.itlaConnection.setEnabled(True)
@@ -63,6 +64,7 @@ class DevicesPanHandler():
         if dev_dict.get('instance').status == 'init':
             port = self.laserITLAComPortCombo.currentText()
             if not port:
+                self.logTE.append(f'Can`t connect to {dev_dict.get("dev_name")}, no port provided')
                 return
             
             dev_dict.get('instance').set_connection('com')
@@ -79,6 +81,32 @@ class DevicesPanHandler():
             dev_dict.get('instance').close()
             self.itlaConnection.setText("Подключить")
             set_status_light(self.itlaStatus, 'init')
+        
+    def handle_pm2100_connect(self):
+        dev_dict = context.get_device('PM2100')
+        if not dev_dict:
+            raise DeviceNotFoundError()
+        
+        if dev_dict.get('instance').status == 'init':
+            addr = self.pm2100AddrTE.text()
+            if not addr:
+                self.logTE.append(f'Can`t connect to {dev_dict.get("dev_name")}, no address provided')
+                return
+            
+            dev_dict.get('instance').set_connection('socket')
+            dev_dict.get('instance').set_addr(addr)
+            try:
+                dev_dict.get('instance').connect()
+            except ConnectionError as e:
+                q.put(e)
+            
+            set_status_light(self.pm2100Status, 'idle')
+            self.handle_connect(self.pm2100Status, 'PM2100')
+            self.itlaConnection.setText("Отключить")
+        else:
+            dev_dict.get('instance').close()
+            self.itlaConnection.setText("Подключить")
+            set_status_light(self.pm2100Status, 'init')
             
 
     def handle_connect(self, status_widget, dev_name):

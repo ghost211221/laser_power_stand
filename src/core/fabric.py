@@ -13,7 +13,7 @@ def enumerate_entities(path: str):
         if '__' in dir_name:
             continue
         
-        path_ = '.'.join(path.split('.')[1:])
+        path_ = '.'.join(path.split('.')[0:])
         modules.append(importlib.import_module(f'{path_}.{dir_name}.{dir_name}'))
 
     return modules

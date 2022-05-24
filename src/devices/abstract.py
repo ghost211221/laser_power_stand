@@ -1,5 +1,12 @@
 from abc import ABCMeta, abstractmethod
-from re import A
+import logging
+
+from core.context import Context
+from core.exceptions import ConnectionClassNotFoundError
+from core.logs.log import LoggingQueue
+
+log = logging.getLogger(__name__)
+context = Context()
 
 class AbstractDevice(metaclass=ABCMeta):
     connection = None
@@ -9,35 +16,47 @@ class AbstractDevice(metaclass=ABCMeta):
     dev_addr = None
     timeout = None
     status = 'init'
+    
+    def __init__(self):
+        self.q = LoggingQueue()
 
-    @abstractmethod
     def set_connection(self, connection_type):
-        pass
+        self.connection_type = connection_type
 
-    @abstractmethod
     def set_addr(self, addr):
-        """ip address:port or com port or ip adrres for visa"""
-        pass
+        """ip address:port or com port or ip addrres for visa"""
+        self.dev_addr = addr
 
-    @abstractmethod
     def connect(self):
-        pass
+        for con_class in context.connections_classes.values():
+            if con_class.connection_type == self.connection_type:
+                self.connection = con_class(self.dev_addr)
+                break
+            
+        if not self.connection:
+            raise ConnectionClassNotFoundError(self.connection_type)
+        
+        self.connection.connect()
+        self.status = 'idle'
+        self.q.put(f'\n{self.dev_name} connected to {self.dev_addr}')
 
-    @abstractmethod
     def close(self):
-        pass
+        self.connection.close()
+        self.status = 'init'
+        self.q.put(f'\n{self.dev_name} disconnected from {self.dev_addr}')
 
-    @abstractmethod
-    def send(self, data):
-        pass
+    def send(self, data):        
+        self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {data}')
+        self.connection.send(data)
 
-    @abstractmethod
     def read(self):
-        pass
+        ans = self.connection.read()
+        self.q.put(f'{self.dev_name} on {self.dev_addr}\nrecieved: {ans}')
 
-    @abstractmethod
     def io(self, data):
-        pass
+        ans = self.connection.io(data)
+        self.__q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {data}\nrecieved: {ans}')
+        return ans
 
     @abstractmethod
     def init(self):

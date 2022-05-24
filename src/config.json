@@ -1,10 +1,15 @@
 {   
     "run_modes": ["normal", "testing"],
-    "run_mode": "testing",
+    "run_mode": "normal",
     "devices": [
         {
             "dev_name": "ITLA5300",
             "type": "laser",
+            "enabled": true
+        },
+        {
+            "dev_name": "PM2100",
+            "type": "power_meter",
             "enabled": true
         }
     ]

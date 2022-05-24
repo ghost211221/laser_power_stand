@@ -17,6 +17,7 @@ class Com(AbstractConnection):
 
     def connect(self):
         self.__port = Serial()
+        self.__port.port = self.__comport
         self.__port.baudrate = self.__baudrate
         self.__port.timeout = self.__timeout
         self.__port.open()
