@@ -14,6 +14,7 @@ class AbstractDevice(metaclass=ABCMeta):
     connection_types = []
     dev_name = None
     dev_addr = None
+    dev_type = None
     timeout = None
     status = 'init'
     
@@ -55,7 +56,7 @@ class AbstractDevice(metaclass=ABCMeta):
 
     def io(self, data):
         ans = self.connection.io(data)
-        self.__q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {data}\nrecieved: {ans}')
+        self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {data}\nrecieved: {ans}')
         return ans
 
     @abstractmethod

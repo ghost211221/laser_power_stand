@@ -99,9 +99,10 @@ class ITLA5300(AbstractDevice):
 
     connection_types = ['com']
     dev_name = 'ITLA5300'
+    dev_type = 'laser'
 
     def __init__(self):
-        super()
+        super().__init__()
         self.baudrate = None
         self.__helper = Helper()
 
@@ -119,7 +120,7 @@ class ITLA5300(AbstractDevice):
             raise ConnectionError(f'Device {self.dev_name} is not connected')
             
             
-        self.__q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
+        self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
         for i, data_set in enumerate(data):
             try:
@@ -134,12 +135,117 @@ class ITLA5300(AbstractDevice):
 
             try:
                 ans = self.io(bytes)
-                self.__q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-                self.__q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+                self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+        
+        self.status = 'ready'
+        
+    def set_wavelen(self, wave_len):
+        # calculate frequency
+        freq = round(3 / wave_len * 10 ** 11)
+        freq3 = freq % 100
+        freq_ = freq // 100
+        freq2 = freq_ % 10000
+        freq1 = freq_ // 10000
+        
+        cmds = [
+            (1, 53, freq1),
+            (1, 54, freq2),
+            (1, 103, freq3),
+        ]
+        
+        # put to regs
+        self.q.put(f'\nSet frequency {freq}MHz on {self.dev_name} on ')
+        self.status = 'processing'
+        
+        for cmd in cmds:
+            self.__helper.setRW(cmd[0])        
+            self.__helper.setRegData(cmd[2])
+            self.__helper.setRegAddr(cmd[1])
+            bytes = self.__helper.genData()
+            try:
+                ans = self.io(bytes)
+                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+            except Exception as e:
+                log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+                self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+        
+        self.status = 'ready'
+        
+    def set_power(self, power):
+        cmds = [
+            (1, 49, power),
+        ]
+        
+        # put to regs
+        self.q.put(f'\nSet power {power}mW on {self.dev_name} on ')
+        self.status = 'processing'
+        
+        for cmd in cmds:
+            self.__helper.setRW(cmd[0])        
+            self.__helper.setRegData(cmd[2])
+            self.__helper.setRegAddr(cmd[1])
+            bytes = self.__helper.genData()
+            try:
+                ans = self.io(bytes)
+                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+            except Exception as e:
+                log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+                self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+        
+        self.status = 'ready'
+        
+    def set_beam_on(self):
+        cmds = [
+            (1, 50, 8),
+        ]
+        
+        # put to regs
+        self.q.put(f'\nEnabling beam on {self.dev_name} on ')
+        self.status = 'processing'
+        
+        for cmd in cmds:
+            self.__helper.setRW(cmd[0])        
+            self.__helper.setRegData(cmd[2])
+            self.__helper.setRegAddr(cmd[1])
+            bytes = self.__helper.genData()
+            try:
+                ans = self.io(bytes)
+                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+            except Exception as e:
+                log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+                self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+        
+        self.status = 'ready'
+        
+    def set_beam_off(self):
+        cmds = [
+            (1, 50, 0),
+        ]
+        
+        # put to regs
+        self.q.put(f'\nEnabling beam on {self.dev_name} on ')
+        self.status = 'processing'
+        
+        for cmd in cmds:
+            self.__helper.setRW(cmd[0])        
+            self.__helper.setRegData(cmd[2])
+            self.__helper.setRegAddr(cmd[1])
+            bytes = self.__helper.genData()
+            try:
+                ans = self.io(bytes)
+                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+            except Exception as e:
+                log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+                self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
         
         self.status = 'ready'
         

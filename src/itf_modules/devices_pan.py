@@ -1,5 +1,3 @@
-from threading import Thread
-
 from PyQt5 import QtCore
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QThread
 
@@ -34,11 +32,11 @@ class Worker(QObject):
 class DevicesPanHandler():
 
     def setup_devices_pan(self, MainWindow):
-        self.init_widgets()
+        self.init_device_pan_widgets()
         
         self.handle_signals()
         
-    def init_widgets(self):
+    def init_device_pan_widgets(self):
         for port in context.comports:
             self.laserITLAComPortCombo.addItem(port)
             
@@ -77,6 +75,7 @@ class DevicesPanHandler():
             set_status_light(self.itlaStatus, 'idle')
             self.handle_connect(self.itlaStatus, 'ITLA5300')
             self.itlaConnection.setText("Отключить")
+            self.nest__powerLaserCombo()
         else:
             dev_dict.get('instance').close()
             self.itlaConnection.setText("Подключить")
