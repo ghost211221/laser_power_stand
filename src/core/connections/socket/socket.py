@@ -41,7 +41,7 @@ class Socket(AbstractConnection):
     def io(self, data):
         self.__sock.send(data.encode('utf-8'))
         try:
-            ans = self.sock.recv(self.__package_len)
+            ans = self.__sock.recv(self.__package_len)
             return ans
         except socket.timeout:
             pass

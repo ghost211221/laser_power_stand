@@ -17,7 +17,9 @@ class Helper():
     def __init__(self):
         self._cmd_int = 0
         self._response = b''
+
         self._bytes_line = b''
+
         self._int_arr = []
 
     def _gen_int_arr(self):
@@ -52,6 +54,7 @@ class Helper():
         self._cmd_int |= reg_addr<<16
 
         self._calcCheckSum()
+
 
     def setRegData(self, data):
         if data < 0 or data > 65535:
@@ -91,7 +94,7 @@ class Helper():
         bip8 = (self._int_arr[0] & 0x0f) ^ self._int_arr[1] ^ self._int_arr[2] ^ self._int_arr[3]
         bip4 = ((bip8 & 0xf0)>>4) ^ (bip8 & 0x0f)
 
-        self._cmd_int |= bip4<<27
+        self._cmd_int |= bip4<<28
         self._gen_int_arr()
 
 
@@ -131,12 +134,15 @@ class ITLA5300(AbstractDevice):
                 log.error(f'failed to get operation {i+1}')
                 continue
             
-            bytes = self.__helper.genData()
+            bytes_ = self.__helper.genData()
 
             try:
-                ans = self.io(bytes)
-                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
-                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+                print('----------')
+                print(bytes_)
+                ans = self.io(bytes_)
+                print(ans)
+                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
                 
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
@@ -168,7 +174,7 @@ class ITLA5300(AbstractDevice):
             self.__helper.setRegAddr(cmd[1])
             bytes = self.__helper.genData()
             try:
-                ans = self.io(bytes)
+                ans = self.send(bytes)
                 self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
             except Exception as e:
@@ -179,7 +185,7 @@ class ITLA5300(AbstractDevice):
         
     def set_power(self, power):
         cmds = [
-            (1, 49, power),
+            (1, 49, power * 100),
         ]
         
         # put to regs
@@ -192,7 +198,7 @@ class ITLA5300(AbstractDevice):
             self.__helper.setRegAddr(cmd[1])
             bytes = self.__helper.genData()
             try:
-                ans = self.io(bytes)
+                ans = self.send(bytes)
                 self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
             except Exception as e:
@@ -216,7 +222,7 @@ class ITLA5300(AbstractDevice):
             self.__helper.setRegAddr(cmd[1])
             bytes = self.__helper.genData()
             try:
-                ans = self.io(bytes)
+                ans = self.send(bytes)
                 self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
             except Exception as e:
@@ -240,7 +246,7 @@ class ITLA5300(AbstractDevice):
             self.__helper.setRegAddr(cmd[1])
             bytes = self.__helper.genData()
             try:
-                ans = self.io(bytes)
+                ans = self.send(bytes)
                 self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
             except Exception as e:

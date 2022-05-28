@@ -101,10 +101,10 @@ class DevicesPanHandler():
             
             set_status_light(self.pm2100Status, 'idle')
             self.handle_connect(self.pm2100Status, 'PM2100')
-            self.itlaConnection.setText("Отключить")
+            self.pm2100Connection.setText("Отключить")
         else:
             dev_dict.get('instance').close()
-            self.itlaConnection.setText("Подключить")
+            self.pm2100Connection.setText("Подключить")
             set_status_light(self.pm2100Status, 'init')
             
 

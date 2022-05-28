@@ -48,4 +48,4 @@ class PowerPanHandler():
         self.startPowerMeasBtn.clicked.connect(self.handle_power_meas)
         
     def handle_power_meas(self):
-        
+        print('measuring')

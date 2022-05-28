@@ -29,7 +29,7 @@ class PM2100(AbstractDevice):
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
         
-        cmd = 'IDN?'
+        cmd = '*IDN?'
         ans = self.io(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')                
@@ -45,7 +45,7 @@ class PM2100(AbstractDevice):
         self.status = 'processing'
         
         cmd = f'WAV {wavelen}'
-        ans = self.io(f'{cmd}\r\n')
+        ans = self.send(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')                
 
@@ -58,12 +58,12 @@ class PM2100(AbstractDevice):
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
         
-        cmd = 'READ? '
+        cmd = 'READ? 0'
         ans = self.io(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')                
 
         self.status = 'ready'
         
-        return ans.split(',')
+        return ans.decode().strip().split(',')
         
