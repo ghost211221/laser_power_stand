@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 import logging
 
 from core.context import Context
-from core.exceptions import ConnectionClassNotFoundError
+from core.exceptions import ConnectionClassNotFoundError, ConnectionError
 from core.logs.log import LoggingQueue
 
 log = logging.getLogger(__name__)
@@ -17,6 +17,7 @@ class AbstractDevice(metaclass=ABCMeta):
     dev_type = None
     timeout = None
     status = 'init'
+    chanels = 1
     
     def __init__(self):
         self.q = LoggingQueue()
@@ -37,7 +38,13 @@ class AbstractDevice(metaclass=ABCMeta):
         if not self.connection:
             raise ConnectionClassNotFoundError(self.connection_type)
         
-        self.connection.connect()
+        try:
+            self.connection.connect()
+        except Exception:
+            self.status = 'error'
+            self.q.put(f'\n{self.dev_name} failed to connect to {self.dev_addr}')
+            return
+            
         self.status = 'idle'
         self.q.put(f'\n{self.dev_name} connected to {self.dev_addr}')
 
@@ -62,3 +69,18 @@ class AbstractDevice(metaclass=ABCMeta):
     @abstractmethod
     def init(self):
         pass
+    
+    @property
+    def labels(self):
+        """labels for showing line names in plots"""
+        if self.chanels > 1:
+            return [f'{self.dev_name} {i}' for i in range(self.chanels)]
+        
+        return [self.dev_name, ] 
+    
+    @property
+    def keys(self):
+        if self.chanels > 1:
+            return [f'{self.dev_name.lower()}_{i}' for i in range(self.chanels)]
+        
+        return [self.dev_name.lower(), ] 

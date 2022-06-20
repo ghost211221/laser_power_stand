@@ -43,5 +43,3 @@ class LoggingQueue(object):
 
     def get(self, timeout=None):
         return self.__queue.get(timeout=timeout)
-
-    

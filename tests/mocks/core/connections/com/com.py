@@ -1,4 +1,12 @@
+import time
+
 import yaml
+
+from tests.mocks.uut import UUT
+
+
+uut = UUT()
+
 
 def decode_data(data):
     pass
@@ -22,8 +30,11 @@ class Com():
     def close(self):
         self.connected = False
 
-    def send(self, data):
-        pass
+    def send(self, cmd):
+        rw, cmd_, data = self.__decode_cmd(cmd)
+        for cmd_dict in  self.__cmds:
+            if rw == 1 and cmd_ == 49:
+                uut.power = data / 100
 
     def read(self, data):
         pass
@@ -60,9 +71,14 @@ class Com():
                 
         return rw, cmd, data
 
-    def io(self, cmd):  
+    def io(self, cmd):
+        # emulate real device
+        # time.sleep(0.1)
         rw, cmd_, data = self.__decode_cmd(cmd)
         for cmd_dict in  self.__cmds:
+            if rw == 1 and cmd_ == 49:
+                uut.power = data / 100
+            
             if cmd_dict.get('rw') == rw and cmd_dict.get('cmd') == cmd_ and cmd_dict.get('data') == data:
                 return cmd_dict.get('ans').encode()
         

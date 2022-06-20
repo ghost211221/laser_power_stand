@@ -1,17 +1,21 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPalette
-from PyQt5.QtCore import QLocale, QObject, pyqtSignal, pyqtSlot, QThread
+from PyQt5.QtCore import QLocale, QObject, pyqtSignal, pyqtSlot, QThread, QThreadPool
 
 import re
 
+from core.context import Context
 from itf_modules.gui import Ui_MainWindow
 from itf_modules.devices_pan import DevicesPanHandler
+from itf_modules.parameters_pan import ParametersPanHandler
 from itf_modules.power_pan import PowerPanHandler
+from itf_modules.measure_pan import MeasurePanHandler
 
 from core.logs.log import LoggingQueue
 
 
 q = LoggingQueue()
+context = Context()
 
 
 class Worker(QObject):
@@ -34,7 +38,8 @@ class Worker(QObject):
     def stop(self):
         self.running = False
 
-class ItfHandler(QtWidgets.QMainWindow, Ui_MainWindow, DevicesPanHandler, PowerPanHandler):
+class ItfHandler(QtWidgets.QMainWindow, Ui_MainWindow, DevicesPanHandler, ParametersPanHandler, PowerPanHandler,
+                 MeasurePanHandler):
 
     def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
@@ -42,10 +47,14 @@ class ItfHandler(QtWidgets.QMainWindow, Ui_MainWindow, DevicesPanHandler, PowerP
 
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         
+        self.threadpool = QThreadPool()
+        
         self.__launch_queue_process()
         
         self.setup_devices_pan(self)
+        self.setup_parameters_pan(self)
         self.setup_power_pan(self)
+        self.setup_measure_pan(self)
         
     def __launch_queue_process(self):
         self.thread = QThread(self)
@@ -67,6 +76,8 @@ class ItfHandler(QtWidgets.QMainWindow, Ui_MainWindow, DevicesPanHandler, PowerP
     def closeEvent(self, event):
         # do stuff
         can_exit  = True
+        context.exit_mode = True
+        
         self.worker.stop()
         self.thread.quit()
         self.thread.wait()

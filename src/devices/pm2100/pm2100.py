@@ -14,6 +14,7 @@ class PM2100(AbstractDevice):
     connection_types = ['socket']
     dev_name = 'PM2100'
     dev_type = 'power_meter'
+    chanels = 4
 
     def __init__(self):
         super().__init__()
@@ -24,7 +25,7 @@ class PM2100(AbstractDevice):
         
     def init(self):
         if not self.connection or not self.connection.connected:
-            raise ConnectionError(f'Device {self.dev_name} is not connected')            
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
             
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
@@ -41,13 +42,13 @@ class PM2100(AbstractDevice):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')            
             
-        self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
+        self.q.put(f'\nSet wavelen {wavelen}MHz on {self.dev_name} on ')
         self.status = 'processing'
         
         cmd = f'WAV {wavelen}'
         ans = self.send(f'{cmd}\r\n')
-        self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
-        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')                
+        self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\n')
+        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\n')                
 
         self.status = 'ready'
     

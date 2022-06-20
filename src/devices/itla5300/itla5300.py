@@ -8,6 +8,7 @@ import yaml
 from ..abstract import AbstractDevice
 from core.context import Context
 from core.exceptions import ConnectionError
+from core.utils import mW_to_dBm
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ class Helper():
             return 'Номер регистра должен быть в диапазоне 0 - 65535'
 
         self._cmd_int &= 33488896
-        self._cmd_int |= data
+        self._cmd_int |= int(data)
 
         self._calcCheckSum()
 
@@ -145,12 +146,17 @@ class ITLA5300(AbstractDevice):
                 log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
                 
             except Exception as e:
+                self.status = 'error'
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+                break
         
         self.status = 'ready'
         
     def set_wavelen(self, wave_len):
+        if not self.connection or not self.connection.connected:
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
+        
         # calculate frequency
         freq = round(3 / wave_len * 10 ** 11)
         freq3 = freq % 100
@@ -184,8 +190,11 @@ class ITLA5300(AbstractDevice):
         self.status = 'ready'
         
     def set_power(self, power):
+        if not self.connection or not self.connection.connected:
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
+        
         cmds = [
-            (1, 49, power * 100),
+            (1, 49, mW_to_dBm(power) * 100),
         ]
         
         # put to regs
@@ -208,6 +217,9 @@ class ITLA5300(AbstractDevice):
         self.status = 'ready'
         
     def set_beam_on(self):
+        if not self.connection or not self.connection.connected:
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
+        
         cmds = [
             (1, 50, 8),
         ]
@@ -229,15 +241,17 @@ class ITLA5300(AbstractDevice):
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
         
-        self.status = 'ready'
         
     def set_beam_off(self):
+        if not self.connection or not self.connection.connected:
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
+        
         cmds = [
             (1, 50, 0),
         ]
         
         # put to regs
-        self.q.put(f'\nEnabling beam on {self.dev_name} on ')
+        self.q.put(f'\nDisabling beam {self.dev_name} on ')
         self.status = 'processing'
         
         for cmd in cmds:

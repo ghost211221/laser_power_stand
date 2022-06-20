@@ -68,7 +68,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>3</number>
            </property>
            <widget class="QWidget" name="devicesTab">
             <attribute name="title">
@@ -1421,7 +1421,17 @@
                       </widget>
                      </item>
                      <item row="8" column="1">
-                      <widget class="QDoubleSpinBox" name="itla5300PowerStopSpin"/>
+                      <widget class="QDoubleSpinBox" name="itla5300PowerStopSpin">
+                       <property name="minimum">
+                        <double>7.580000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>56.229999999999997</double>
+                       </property>
+                       <property name="value">
+                        <double>56.229999999999997</double>
+                       </property>
+                      </widget>
                      </item>
                      <item row="8" column="0">
                       <widget class="QLabel" name="label_29">
@@ -1431,7 +1441,14 @@
                       </widget>
                      </item>
                      <item row="2" column="1">
-                      <widget class="QDoubleSpinBox" name="itla5300WaveLenStartSpin"/>
+                      <widget class="QDoubleSpinBox" name="itla5300WaveLenStartSpin">
+                       <property name="minimum">
+                        <double>1525.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>1612.000000000000000</double>
+                       </property>
+                      </widget>
                      </item>
                      <item row="2" column="0">
                       <widget class="QLabel" name="label_24">
@@ -1441,13 +1458,43 @@
                       </widget>
                      </item>
                      <item row="7" column="1">
-                      <widget class="QDoubleSpinBox" name="itla5300PowerStartSpin"/>
+                      <widget class="QDoubleSpinBox" name="itla5300PowerStartSpin">
+                       <property name="minimum">
+                        <double>7.580000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>56.229999999999997</double>
+                       </property>
+                      </widget>
                      </item>
                      <item row="3" column="1">
-                      <widget class="QDoubleSpinBox" name="itla5300WaveLenStopSpin"/>
+                      <widget class="QDoubleSpinBox" name="itla5300WaveLenStopSpin">
+                       <property name="minimum">
+                        <double>1525.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>1612.000000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>1612.000000000000000</double>
+                       </property>
+                      </widget>
                      </item>
                      <item row="0" column="1">
-                      <widget class="QDoubleSpinBox" name="itla5300WaveLenSpin"/>
+                      <widget class="QDoubleSpinBox" name="itla5300WaveLenSpin">
+                       <property name="decimals">
+                        <number>2</number>
+                       </property>
+                       <property name="minimum">
+                        <double>1525.000000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>1612.000000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>1525.000000000000000</double>
+                       </property>
+                      </widget>
                      </item>
                      <item row="1" column="0">
                       <widget class="QLabel" name="label_11">
@@ -1464,7 +1511,14 @@
                       </widget>
                      </item>
                      <item row="4" column="1">
-                      <widget class="QDoubleSpinBox" name="itla5300PowerSpin"/>
+                      <widget class="QDoubleSpinBox" name="itla5300PowerSpin">
+                       <property name="minimum">
+                        <double>7.580000000000000</double>
+                       </property>
+                       <property name="maximum">
+                        <double>56.229999999999997</double>
+                       </property>
+                      </widget>
                      </item>
                      <item row="6" column="0">
                       <widget class="QLabel" name="label_27">
@@ -1766,6 +1820,9 @@
             </layout>
            </widget>
            <widget class="QWidget" name="powerTab">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <attribute name="title">
              <string>Мощность</string>
             </attribute>
@@ -1846,6 +1903,9 @@
                  <layout class="QGridLayout" name="gridLayout_16">
                   <item row="0" column="0">
                    <widget class="QGroupBox" name="groupBox_5">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="autoFillBackground">
                      <bool>false</bool>
                     </property>
@@ -1876,7 +1936,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>13</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -1896,7 +1956,7 @@
                        </item>
                        <item>
                         <property name="text">
-                         <string>dB</string>
+                         <string>dBm</string>
                         </property>
                        </item>
                       </widget>
@@ -1951,7 +2011,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -1971,7 +2031,7 @@
                        </item>
                        <item>
                         <property name="text">
-                         <string>dB</string>
+                         <string>dBm</string>
                         </property>
                        </item>
                       </widget>
@@ -2029,7 +2089,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -2102,7 +2162,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -2172,7 +2232,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -2192,7 +2252,7 @@
                        </item>
                        <item>
                         <property name="text">
-                         <string>dB</string>
+                         <string>dBm</string>
                         </property>
                        </item>
                       </widget>
@@ -2247,7 +2307,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -2267,7 +2327,7 @@
                        </item>
                        <item>
                         <property name="text">
-                         <string>dB</string>
+                         <string>dBm</string>
                         </property>
                        </item>
                       </widget>
@@ -2325,7 +2385,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -2398,7 +2458,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -2471,7 +2531,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -2544,7 +2604,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -2617,7 +2677,7 @@
                        <property name="font">
                         <font>
                          <family>Lucida Sans</family>
-                         <pointsize>17</pointsize>
+                         <pointsize>15</pointsize>
                         </font>
                        </property>
                       </widget>
@@ -3024,9 +3084,6 @@
                            <property name="spacing">
                             <number>5</number>
                            </property>
-                           <item row="0" column="0">
-                            <widget class="QGraphicsView" name="measGraphicsView"/>
-                           </item>
                           </layout>
                          </widget>
                         </item>
