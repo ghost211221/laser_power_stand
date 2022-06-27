@@ -19,6 +19,7 @@ class MeasurePanHandler():
     def setup_measure_pan(self, MainWindow):
         self.measure_dev_ch_line = {}
         
+        self.init_meas_pan_widgets()
         self.handle__measure_signals()
         self.setup_single_meas_plot()
         
@@ -60,3 +61,21 @@ class MeasurePanHandler():
             self.measure_dev_ch_line[line_name]['line'].setData(wavelengths, powers)
         else:
             self.measure_dev_ch_line[line_name]['line'].setData([], [])
+
+    def init_meas_pan_widgets(self):
+        self.nest__measLaserCombo()
+        
+    def nest__measLaserCombo(self):
+        """refresh list of available lasers"""
+        # store previous selected
+        selected = self.measLaserConbo.currentText()
+        
+        self.measLaserConbo.clear()
+        for device in context.devices:
+            if device['instance'].dev_type == 'laser' and device['instance'].status != 'init':
+                self.measLaserConbo.addItem(device['instance'].dev_name)
+                
+        # restore previous
+        if selected:
+            self.measLaserConbo.setCurrentText(selected)
+            

@@ -163,6 +163,7 @@ class DevicesPanHandler():
 
     def update_laser_selects(self):
         self.nest__powerLaserCombo()
+        self.nest__measLaserCombo()
         
     def update_devices_pars(self, dev_name):
         """when device inited - set wavelen and? power, depends on device"""
