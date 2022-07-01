@@ -10,6 +10,7 @@ class Context():
     
     def __init__(self):
         self.run_cont_measure = False
+        self.run_single_measure = False
         self.exit_mode = False
         
         self.current_wavelen = None

@@ -81,6 +81,6 @@ class AbstractDevice(metaclass=ABCMeta):
     @property
     def keys(self):
         if self.chanels > 1:
-            return [f'{self.dev_name.lower()}_{i}' for i in range(self.chanels)]
+            return [f'{self.dev_name.lower()}_{i+1}' for i in range(self.chanels)]
         
         return [self.dev_name.lower(), ] 

@@ -106,40 +106,39 @@ class PowerPanHandler():
         self.set_cont_meas_state()
         
     @property
-    def __selected_laser(self):
+    def __power_selected_laser(self):
         return self.powerLaserCombo.currentText()
         
     @property
-    def __can_start_meas(self):        
-        enabled_devices =  list(self.get_enbaled_meters())
-        if self.__selected_laser:
-            enabled_devices.append(self.__selected_laser)
+    def __can_start_power_meas(self):        
+        enabled_devices =  list(self.get_enbaled_meters__power())
+        if self.__power_selected_laser:
+            enabled_devices.append(self.__power_selected_laser)
         for dev_dict in context.devices:
             if not (dev_dict['dev_name'] in enabled_devices and dev_dict['instance'].connection and \
                     dev_dict['instance'].connection.connected):
                 return dev_dict['dev_name']
         
-    def get_enbaled_meters(self):
+    def get_enbaled_meters__power(self):
         enabled = []
         
         for widget in (self.pm2100_1_en_cb, self.pm2100_2_en_cb, self.pm2100_3_en_cb, self.pm2100_4_en_cb):
-            enabled.append('PM2100')
+            if widget.isChecked:
+                enabled.append('PM2100')
+                break
             
         return enabled
         
     def set_cont_meas_state(self):
-        if self.__can_start_meas:
-            q.put(f'{self.__can_start_meas} is selected for process but not connected')            
+        if self.__can_start_power_meas:
+            q.put(f'{self.__can_start_power_meas} is selected for process but not connected')            
             return
         
         if  self.startPowerMeasBtn.text() == 'Начать измерение':
             self.startPowerMeasBtn.setText('Остановить измерение')
             context.run_cont_measure = True
-            self._cont_power_worker.set_laser_name(self.__selected_laser)
-            self._cont_power_worker.set_enabled_meters(self.get_enbaled_meters())
-            
-            
-            # self.run_cont_measure_thread()
+            self._cont_power_worker.set_laser_name(self.__power_selected_laser)
+            self._cont_power_worker.set_enabled_meters(self.get_enbaled_meters__power())
         else:
             context.run_cont_measure = False
             self.startPowerMeasBtn.setText('Начать измерение')
