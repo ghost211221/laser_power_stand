@@ -10,6 +10,7 @@ from itf_modules.devices_pan import DevicesPanHandler
 from itf_modules.parameters_pan import ParametersPanHandler
 from itf_modules.power_pan import PowerPanHandler
 from itf_modules.measure_pan import MeasurePanHandler
+from itf_modules.scan_pan import ScanPanHandler
 
 from core.logs.log import LoggingQueue
 
@@ -39,7 +40,7 @@ class Worker(QObject):
         self.running = False
 
 class ItfHandler(QtWidgets.QMainWindow, Ui_MainWindow, DevicesPanHandler, ParametersPanHandler, PowerPanHandler,
-                 MeasurePanHandler):
+                 MeasurePanHandler, ScanPanHandler):
 
     def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
@@ -55,6 +56,7 @@ class ItfHandler(QtWidgets.QMainWindow, Ui_MainWindow, DevicesPanHandler, Parame
         self.setup_parameters_pan(self)
         self.setup_power_pan(self)
         self.setup_measure_pan(self)
+        self.setup_scan_pan(self)
         
     def __launch_queue_process(self):
         self.thread = QThread(self)

@@ -15,6 +15,7 @@ q = LoggingQueue()
 class WorkerSignals(QObject):
     '''Signal for messaging device state'''
     message = pyqtSignal(str, list)
+    stopped = pyqtSignal()
     finished = pyqtSignal()
 
 
@@ -71,7 +72,8 @@ class ContinuousMeasureWorker(QRunnable):
                     time.sleep(1)
                     
                 self.laser.set_beam_off()
-                
+            
+            self.signals.stopped.emit()                
             time.sleep(1)
                 
 class PowerPanHandler():
@@ -137,6 +139,8 @@ class PowerPanHandler():
         if  self.startPowerMeasBtn.text() == 'Начать измерение':
             self.startPowerMeasBtn.setText('Остановить измерение')
             context.run_cont_measure = True
+            context.run_single_measure = False
+            context.run_scan = False
             self._cont_power_worker.set_laser_name(self.__power_selected_laser)
             self._cont_power_worker.set_enabled_meters(self.get_enbaled_meters__power())
         else:
@@ -147,10 +151,14 @@ class PowerPanHandler():
     def run_cont_measure_thread(self):
         self._cont_power_worker = ContinuousMeasureWorker() # Any other args, kwargs are passed to the run function
         self._cont_power_worker.signals.message.connect(self.update_tiles)
+        self._cont_power_worker.signals.stopped.connect(self.update_power_run_btn)
         self._cont_power_worker.setAutoDelete(0)
 
         # Execute
         self.threadpool.start(self._cont_power_worker)
+        
+    def update_power_run_btn(self):
+        self.startPowerMeasBtn.setText('Начать измерение')
         
     def update_tile(self, value, unitSel, widget):
         val_to_show = float(value) if unitSel.currentText() == 'dBm' else dBm_to_mW(float(value))

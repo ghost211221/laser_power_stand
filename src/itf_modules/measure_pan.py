@@ -154,7 +154,7 @@ class MeasurePanHandler():
         return self.measLaserConbo.currentText()
             
     @property
-    def __can_start_single_meas(self):        
+    def can_start_single_meas(self):        
         enabled_devices =  self.get_enbaled_meters__single()
         if self.__single_meas_selected_laser:
             enabled_devices.append(self.__single_meas_selected_laser)
@@ -175,8 +175,8 @@ class MeasurePanHandler():
         return enabled
             
     def handle_meas__measure(self):
-        if self.__can_start_single_meas:
-            q.put(f'{self.__can_start_single_meas} is selected for process but not connected')            
+        if self.can_start_single_meas:
+            q.put(f'{self.can_start_single_meas} is selected for process but not connected')            
             return
         
         meters = self.get_enbaled_meters__single()
@@ -192,6 +192,8 @@ class MeasurePanHandler():
         self._single_meas_worker.set_laser_name(laser)
         self._single_meas_worker.set_enabled_meters(meters)
         context.run_single_measure = True
+        context.run_cont_measure = False
+        context.run_scan = False
         
     def run_single_measure_thread(self):
         self._single_meas_worker = SingleMeasureWorker() # Any other args, kwargs are passed to the run function

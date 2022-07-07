@@ -68,7 +68,7 @@
             <bool>true</bool>
            </property>
            <property name="currentIndex">
-            <number>3</number>
+            <number>4</number>
            </property>
            <widget class="QWidget" name="devicesTab">
             <attribute name="title">
@@ -3199,7 +3199,14 @@
                     <widget class="QComboBox" name="scanLaserCombo"/>
                    </item>
                    <item row="1" column="8">
-                    <widget class="QDoubleSpinBox" name="scanStepSpin"/>
+                    <widget class="QDoubleSpinBox" name="scanStepSpin">
+                     <property name="maximum">
+                      <double>87.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="1" column="4">
                     <widget class="QLabel" name="label_62">
@@ -3213,10 +3220,26 @@
                      <property name="suffix">
                       <string/>
                      </property>
+                     <property name="minimum">
+                      <double>1525.000000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>1612.000000000000000</double>
+                     </property>
                     </widget>
                    </item>
                    <item row="1" column="5">
-                    <widget class="QDoubleSpinBox" name="scanStopSpin"/>
+                    <widget class="QDoubleSpinBox" name="scanStopSpin">
+                     <property name="minimum">
+                      <double>1525.000000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>1612.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1612.000000000000000</double>
+                     </property>
+                    </widget>
                    </item>
                    <item row="2" column="0">
                     <widget class="QPushButton" name="pushButton_12">
@@ -3660,9 +3683,6 @@
                    <property name="spacing">
                     <number>5</number>
                    </property>
-                   <item row="0" column="0">
-                    <widget class="QGraphicsView" name="scanGraphicsView"/>
-                   </item>
                   </layout>
                  </widget>
                 </item>
