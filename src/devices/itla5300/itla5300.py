@@ -115,18 +115,25 @@ class ITLA5300(AbstractDevice):
 
     def set_baudrate(self, baudrate):
         self.baudrate = baudrate
-        
+
     def init(self):
         with open(os.path.join(os.path.dirname(__file__), 'init_proc.yml')) as f:
             data = yaml.safe_load(f)
-            
+
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
-            
-            
+
+        # every dict in data is doubled o_O
+        # temporary way to fix
+        should_pass_even = data[-2] == data[-1]
+
+        print(len(data))
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
         for i, data_set in enumerate(data):
+            if should_pass_even and i % 2 == 0:
+                continue
+
             try:
                 self.__helper.setRW(data_set['rw'])
                 self.__helper.setRegData(data_set['data'])
@@ -134,48 +141,49 @@ class ITLA5300(AbstractDevice):
             except KeyError as e:
                 log.error(f'failed to get operation {i+1}')
                 continue
-            
+
             bytes_ = self.__helper.genData()
 
             try:
                 print('----------')
-                print(bytes_)
+                print(i)
+                # print(bytes_)
                 ans = self.io(bytes_)
-                print(ans)
-                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
-                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
-                
+                # print(ans)
+                # self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+                log.info(f'{i:4}: {self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+
             except Exception as e:
                 self.status = 'error'
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 break
-        
+
         self.status = 'ready'
-        
+
     def set_wavelen(self, wave_len):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
-        
+
         # calculate frequency
         freq = round(3 / wave_len * 10 ** 11)
         freq3 = freq % 100
         freq_ = freq // 100
         freq2 = freq_ % 10000
         freq1 = freq_ // 10000
-        
+
         cmds = [
             (1, 53, freq1),
             (1, 54, freq2),
             (1, 103, freq3),
         ]
-        
+
         # put to regs
         self.q.put(f'\nSet frequency {freq}MHz on {self.dev_name} on ')
         self.status = 'processing'
-        
+
         for cmd in cmds:
-            self.__helper.setRW(cmd[0])        
+            self.__helper.setRW(cmd[0])
             self.__helper.setRegData(cmd[2])
             self.__helper.setRegAddr(cmd[1])
             bytes = self.__helper.genData()
@@ -186,23 +194,23 @@ class ITLA5300(AbstractDevice):
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-        
+
         self.status = 'ready'
-        
+
     def set_power(self, power):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
-        
+
         cmds = [
             (1, 49, mW_to_dBm(power) * 100),
         ]
-        
+
         # put to regs
         self.q.put(f'\nSet power {power}mW on {self.dev_name} on ')
         self.status = 'processing'
-        
+
         for cmd in cmds:
-            self.__helper.setRW(cmd[0])        
+            self.__helper.setRW(cmd[0])
             self.__helper.setRegData(cmd[2])
             self.__helper.setRegAddr(cmd[1])
             bytes = self.__helper.genData()
@@ -213,23 +221,23 @@ class ITLA5300(AbstractDevice):
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-        
+
         self.status = 'ready'
-        
+
     def set_beam_on(self):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
-        
+
         cmds = [
             (1, 50, 8),
         ]
-        
+
         # put to regs
         self.q.put(f'\nEnabling beam on {self.dev_name} on ')
         self.status = 'processing'
-        
+
         for cmd in cmds:
-            self.__helper.setRW(cmd[0])        
+            self.__helper.setRW(cmd[0])
             self.__helper.setRegData(cmd[2])
             self.__helper.setRegAddr(cmd[1])
             bytes = self.__helper.genData()
@@ -240,22 +248,22 @@ class ITLA5300(AbstractDevice):
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-        
-        
+
+
     def set_beam_off(self):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
-        
+
         cmds = [
             (1, 50, 0),
         ]
-        
+
         # put to regs
         self.q.put(f'\nDisabling beam {self.dev_name} on ')
         self.status = 'processing'
-        
+
         for cmd in cmds:
-            self.__helper.setRW(cmd[0])        
+            self.__helper.setRW(cmd[0])
             self.__helper.setRegData(cmd[2])
             self.__helper.setRegAddr(cmd[1])
             bytes = self.__helper.genData()
@@ -266,16 +274,15 @@ class ITLA5300(AbstractDevice):
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-        
+
         self.status = 'ready'
-        
-    
+
+
 if __name__ == '__main__':
     helper = Helper()
-    
+
     helper.setRW(0)
     helper.setRegAddr(37)
     helper.setRegData(271)
-    
+
     print(helper.genData())
-    

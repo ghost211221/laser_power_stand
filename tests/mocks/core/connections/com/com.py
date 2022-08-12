@@ -13,14 +13,14 @@ def decode_data(data):
 
 class Com():
     connection_type = 'com'
-    
+
     def __init__(self, comport, timeout=1, baudrate=9600):
         print('called mocked constructor')
         self.__comport = comport
         self.__port = None
         self.__timeout = timeout
         self.__baudrate = baudrate
-        
+
         with open('src/devices/itla5300/init_proc.yml') as f:
             self.__cmds = yaml.safe_load(f)
 
@@ -38,7 +38,7 @@ class Com():
 
     def read(self, data):
         pass
-    
+
     def __extract_int(self, line):
         value = 0
         for i, digit in enumerate(list(reversed(line))):
@@ -49,7 +49,7 @@ class Com():
 
         return value
 
-    
+
     def __decode_cmd(self, bytes_arr):
         rw = None
         cmd = None
@@ -68,20 +68,19 @@ class Com():
 
             else:
                 data += byte
-                
+
         return rw, cmd, data
 
     def io(self, cmd):
         # emulate real device
-        # time.sleep(0.1)
+        time.sleep(0.1)
         rw, cmd_, data = self.__decode_cmd(cmd)
         for cmd_dict in  self.__cmds:
             if rw == 1 and cmd_ == 49:
                 uut.power = data / 100
-            
+
             if cmd_dict.get('rw') == rw and cmd_dict.get('cmd') == cmd_ and cmd_dict.get('data') == data:
                 return cmd_dict.get('ans').encode()
-        
-            
-        
-        
+
+
+
