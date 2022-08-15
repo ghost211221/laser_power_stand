@@ -73,7 +73,7 @@ class Com():
 
     def io(self, cmd):
         # emulate real device
-        time.sleep(0.1)
+        time.sleep(0.05)
         rw, cmd_, data = self.__decode_cmd(cmd)
         for cmd_dict in  self.__cmds:
             if rw == 1 and cmd_ == 49:

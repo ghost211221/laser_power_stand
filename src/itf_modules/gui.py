@@ -1266,6 +1266,9 @@ class Ui_MainWindow(object):
         self.measMeasBtn = QtWidgets.QPushButton(self.frame_19)
         self.measMeasBtn.setObjectName("measMeasBtn")
         self.gridLayout_41.addWidget(self.measMeasBtn, 0, 3, 1, 1)
+        self.measClearPlotBtn = QtWidgets.QPushButton(self.frame_19)
+        self.measClearPlotBtn.setObjectName("measClearPlotBtn")
+        self.gridLayout_41.addWidget(self.measClearPlotBtn, 0, 5, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_41.addItem(spacerItem3, 0, 5, 1, 1)
         self.gridLayout_41.setColumnStretch(0, 2)
@@ -1460,7 +1463,7 @@ class Ui_MainWindow(object):
         self.scanStartSpin.setValue(1525)
         self.gridLayout_48.addWidget(self.scanStartSpin, 1, 2, 1, 1)
         self.scanStopSpin = QtWidgets.QDoubleSpinBox(self.groupBox_17)
-        self.scanStopSpin.setObjectName("scanStopSpin")        
+        self.scanStopSpin.setObjectName("scanStopSpin")
         self.scanStopSpin.setMaximum(1612)
         self.scanStopSpin.setMinimum(1525)
         self.scanStopSpin.setValue(1612)
@@ -1471,6 +1474,9 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.groupBox_17)
         self.pushButton.setObjectName("pushButton")
         self.gridLayout_48.addWidget(self.pushButton, 2, 1, 1, 2)
+        self.scanClearPlot = QtWidgets.QPushButton(self.groupBox_17)
+        self.scanClearPlot.setObjectName("scanClearPlot")
+        self.gridLayout_48.addWidget(self.scanClearPlot, 2, 3, 1, 3)
         self.gridLayout_48.setColumnStretch(0, 1)
         self.gridLayout_48.setColumnStretch(2, 5)
         self.gridLayout_48.setColumnStretch(3, 1)
@@ -1733,7 +1739,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionLoad)
         self.menuFile.addAction(self.actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
-        
+
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         self.actionExit.triggered.connect(MainWindow.close) # type: ignore
@@ -1875,3 +1881,6 @@ class Ui_MainWindow(object):
         self.actionSave.setText(_translate("MainWindow", "Сохранить"))
         self.actionLoad.setText(_translate("MainWindow", "Загрузить"))
         self.actionExit.setText(_translate("MainWindow", "Выход"))
+
+        self.measClearPlotBtn.setText(_translate('MainWindow', 'Очистить график'))
+        self.scanClearPlot.setText(_translate('MainWindow', 'Очистить график'))
