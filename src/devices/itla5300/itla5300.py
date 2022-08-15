@@ -123,16 +123,9 @@ class ITLA5300(AbstractDevice):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
-        # every dict in data is doubled o_O
-        # temporary way to fix
-        should_pass_even = data[-2] == data[-1]
-
-        print(len(data))
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
         for i, data_set in enumerate(data):
-            if should_pass_even and i % 2 == 0:
-                continue
 
             try:
                 self.__helper.setRW(data_set['rw'])
@@ -145,11 +138,7 @@ class ITLA5300(AbstractDevice):
             bytes_ = self.__helper.genData()
 
             try:
-                print('----------')
-                print(i)
-                # print(bytes_)
                 ans = self.io(bytes_)
-                # print(ans)
                 # self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
                 log.info(f'{i:4}: {self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
 
