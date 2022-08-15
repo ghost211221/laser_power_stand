@@ -11,7 +11,7 @@ from core.exceptions import ConnectionError
 from core.utils import mW_to_dBm
 
 log = logging.getLogger(__name__)
-
+c = Context()
 
 class Helper():
     """build cmd and convert to bytes with control sum"""
@@ -126,6 +126,9 @@ class ITLA5300(AbstractDevice):
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
         for i, data_set in enumerate(data):
+            if c.exit_mode:
+                self.q.put(f'{self.dev_name} breaking init loop for exit...')
+                break
 
             try:
                 self.__helper.setRW(data_set['rw'])
