@@ -1,14 +1,13 @@
 from serial import Serial
 
 from ..abstract import AbstractConnection
-from core.logs.decorators import log_to_queue
 
 # TODO: add log
 # TODO: add exceptions handling
 
 class Com(AbstractConnection):
     connection_type = 'com'
-    
+
     def __init__(self, comport, timeout=1, baudrate=9600):
         self.__comport = comport
         self.__port = None

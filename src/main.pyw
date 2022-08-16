@@ -18,7 +18,7 @@ def init_context():
     if os.path.exists('src/config.json'):
         with open('src/config.json') as f:
             data = json.loads(f.read())
-        
+
         for k, v in data.items():
             setattr(context, k, v)
 
@@ -46,7 +46,6 @@ def init_comports():
 
 
 def main():
-    
     init_context()
     # init log, get connectiond and devices classes, put them to context
     init_log()
