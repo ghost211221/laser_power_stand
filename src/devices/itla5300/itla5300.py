@@ -251,7 +251,7 @@ class ITLA5300(AbstractDevice):
         ]
 
         # put to regs
-        self.q.put(f'\nDisabling beam {self.dev_name} on ')
+        self.q.put(f'\nDisabling beam {self.dev_name}')
         self.status = 'processing'
 
         for cmd in cmds:

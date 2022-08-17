@@ -85,6 +85,28 @@ class ParametersPanHandler():
         self.itla5300WaveLenSpin.valueChanged.connect(self.update_pm2100_wavelen)
         self.itla5300PowerSpin.valueChanged.connect(self.update_itla_power)
 
+        self.itla5300EnableBeamBtn.clicked.connect(self.handle__itla5300_beam_enable)
+
+    def handle__itla5300_beam_enable(self):
+        if context.run_cont_measure or context.run_single_measure or context.run_scan:
+            q.put(f'Can`t enable beam - measurement ia already running')
+            return
+
+        context.current_wavelen = self.itla5300WaveLenSpin.value
+        dev_dict = context.get_device('ITLA5300')
+        if not dev_dict:
+            raise DeviceNotFoundError()
+
+        if context.run_laser:
+            dev_dict.get('instance').set_beam_off()
+            context.run_laser = False
+            self.itla5300EnableBeamBtn.setText('Включить луч лазера')
+        else:
+            dev_dict.get('instance').set_beam_on()
+            context.run_laser = True
+            self.itla5300EnableBeamBtn.setText('Выключить луч лазера')
+
+
     def update_itla_wavelen(self):
         if context.run_cont_measure:
             q.put(f'Can`t change wavelen during measurement')

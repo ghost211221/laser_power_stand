@@ -226,6 +226,10 @@ class ScanPanHandler():
         start = self.scanStartSpin.value()
         stop = self.scanStopSpin.value()
 
+        if context.run_laser or context.run_cont_measure or context.run_single_measure:
+            q.put(f'Can`t enable beam - measurement ia already running')
+            return
+
         if  self.scanStartBtn.text() == 'Измерение':
             self.scanStartBtn.setText('Остановить')
             self._scan_worker.set_laser_name(laser)

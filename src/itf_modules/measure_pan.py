@@ -204,6 +204,10 @@ class MeasurePanHandler():
             q.put(f'No laser selected for measure')
             return
 
+        if context.run_laser or context.run_cont_measure or context.run_scan:
+            q.put(f'Can`t enable beam - measurement ia already running')
+            return
+
         self._single_meas_worker.set_laser_name(laser)
         self._single_meas_worker.set_enabled_meters(meters)
         context.run_single_measure = True
