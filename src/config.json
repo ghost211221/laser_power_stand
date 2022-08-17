@@ -1,6 +1,6 @@
 {
     "run_modes": ["normal", "testing"],
-    "run_mode": "testing",
+    "run_mode": "normal",
     "devices": [
         {
             "dev_name": "ITLA5300",
