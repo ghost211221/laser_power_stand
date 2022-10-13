@@ -157,17 +157,18 @@ class ITLA5300(AbstractDevice):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
-        # calculate frequency
-        freq = round(3 / wave_len * 10 ** 11)
-        freq3 = freq % 100
-        freq_ = freq // 100
-        freq2 = freq_ % 10000
-        freq1 = freq_ // 10000
+        # calculate frequency in THz
+        freq = 3 / wave_len * 10 ** 5
+        fcf1 = int(freq)
+        freq_ = (freq - fcf1) * 10 ** 4
+        fcf2 = int(freq_)
+        freq_ -= fcf2
+        fcf3 = int(freq_ * 10 ** 2)
 
         cmds = [
-            (1, 53, freq1),
-            (1, 54, freq2),
-            (1, 103, freq3),
+            (1, 53, fcf1),
+            (1, 54, fcf2),
+            (1, 103, fcf3),
         ]
 
         # put to regs
