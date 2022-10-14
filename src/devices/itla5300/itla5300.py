@@ -158,7 +158,7 @@ class ITLA5300(AbstractDevice):
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         # calculate frequency in THz
-        freq = 3 / wave_len * 10 ** 5
+        freq = 299792458 / wave_len / 10 ** 3
         fcf1 = int(freq)
         freq_ = (freq - fcf1) * 10 ** 4
         fcf2 = int(freq_)
