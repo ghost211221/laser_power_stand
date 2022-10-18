@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <!-- Обязательные метатеги -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script type="text/javascript" src="../js/jquery-3.6.1.min.js"></script>
+    <script src="../js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="../js/dropdown.js"></script>
+    <script type="text/javascript" src="../js/plotly-2.14.0.min.js"></script>
+    <script type="text/javascript src="../plugins/vakata-jstree-7a03954/dist/jstree.min.js"></script>
+
+
+    <script type="text/javascript" src="../js/switch_panels.js"></script>
+    <script type="text/javascript" src="../js/modals_control.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="../css/style.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../plugins/vakata-jstree-7a03954/dist/themes/default/style.min.css" />
+
+    <title>Измерительный комплекс</title>
+</head>
+<body>
+    <script>
+        // should resize by python
+        window.resizeTo(1160, 975);
+    </script>
+
+    <script>
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
+
+    <div class="wrapper">
+        <div class="header">
+            {% include 'header.html' %}
+        </div>
+        <div class="content">
+            {% include 'panels/home.html' %}
+            {% include 'panels/continuous_measure.html' %}
+            {% include 'panels/single_measure.html' %}
+            {% include 'panels/scan_measure.html' %}
+            {% include 'panels/log.html' %}
+        </div>
+        <div class="footer">
+            {% include 'footer.html' %}
+        </div>
+    </div>
+
+    <!-- Modals -->
+    {% include 'modals.html'%}
+
+
+
+    <script>
+        var exp1 = "x";
+        var exp2 = "1.5*x";
+        var exp3 = "1.5*x + 7";
+
+        // Generate values
+        var x1Values = [];
+        var x2Values = [];
+        var x3Values = [];
+        var y1Values = [];
+        var y2Values = [];
+        var y3Values = [];
+
+        for (var x = 0; x <= 10; x += 1) {
+        x1Values.push(x);
+        x2Values.push(x);
+        x3Values.push(x);
+        y1Values.push(eval(exp1));
+        y2Values.push(eval(exp2));
+        y3Values.push(eval(exp3));
+        }
+
+        // Define Data
+        var data = [
+        {x: x1Values, y: y1Values, mode:"lines"},
+        {x: x2Values, y: y2Values, mode:"lines"},
+        {x: x3Values, y: y3Values, mode:"lines"}
+        ];
+
+        // Define Layout
+        var layout = {
+            title: "[y=" + exp1 + "] [y=" + exp2 + "] [y=" + exp3 + "]",
+            autosize: false,
+            width: 813,
+            height: 683,
+        };
+
+        // Display using Plotly
+        Plotly.newPlot("single_meas_plot", data, layout);
+        Plotly.newPlot("scan_plot", data, layout);
+    </script>
+
+    <script>
+        $(function () { $('#jstree_sm').jstree(); });
+        $(function () { $('#jstree_scan').jstree(); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!-- add new device modal -->
+<div class="modal fade" id="new_device_modal" tabindex="-1" aria-labelledby="new_device_modal" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Новый прибор</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Метка прибора:</div>
+                            <div class="col col-8"><input class="form-control" type="text" name="device_name" id="device_name"></div>
+                        </div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Тип прибора:</div>
+                            <div class="col col-8">
+                                <select name="device_type" id="device_type" class="form-select">
+                                    <option value="laser">Лазер</option>
+                                    <option value="meter">Измеритель</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Модель прибора:</div>
+                            <div class="col col-8">
+                                <select name="device_model" id="device_type" class="form-select">
+                                    <option value="ITLA5100">ITLA5100</option>
+                                    <option value="PM2100">PM2100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Тип подключения:</div>
+                            <div class="col col-8">
+                                <select name="device_conntection" id="device_type" class="form-select">
+                                    <option value="COM">COM</option>
+                                    <option value="Ethernet">Ethernet</option>
+                                    <option value="USB">USB</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Адрес:</div>
+                            <div class="col col-8"><input class="form-control" type="text" name="device_addr" id="device_name"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- select devices for single meas -->
+<div class="modal fade" id="sm_devices_modal" tabindex="-1" aria-labelledby="sm_devices" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Приборы</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="jstree_sm"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- select devices for scan -->
+<div class="modal fade" id="scan_devices_modal" tabindex="-1" aria-labelledby="sm_devices" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Приборы</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="jstree_scan"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

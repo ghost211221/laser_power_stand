@@ -1,0 +1,109 @@
+<div class="panel panel-default main-panel" id="panel-cm" style="display: none">
+    <div class="panel-header">
+
+    </div>
+    <div class="panel-body" style="height: 90% !important">
+        <div class="row row-cols-2"  style="height: 100% !important">
+            <div class="col col-3">
+                <div class="panel panel-default border">
+                    <div class="panel-header p-1">
+                        <h6>Настройка измерения</h6>
+                    </div>
+                    <div class="panel-body" style="height: 100% !important">
+                        <div class="row p-1">
+                            <div class="col">Лазер</div>
+                        </div>
+                        <div class="row p-1">
+                            <div class="col">
+                                <select name="cm_laser" id="cm_laser" class="form-select">
+                                    <option value="ITLA5100" selected>ITLA5100</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row p-1">
+                            <div class="col">Длина волны</div>
+                        </div>
+                        <div class="row p-1">
+                            <div class="col">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <div class="input-group-append">
+                                      <span class="input-group-text">нм</span>
+                                    </div>
+                                </div>
+                                <span>Допустимый диапазон: <br>
+                                    От: мВт<br>
+                                    До: мВт
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row p-1">
+                            <div class="col">Мощность</div>
+                        </div>
+                        <div class="row p-1">
+                            <div class="col">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <div class="input-group-append">
+                                      <span class="input-group-text">мВт</span>
+                                    </div>
+                                </div>
+                                <span>Допустимый диапазон: <br>
+                                    От: мВт<br>
+                                    До: мВт
+                                </span>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn btn-sm btn-primary">Начать измерение</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-9">
+                <div class="panel panel-default border">
+                    <div class="panel-body" style="height: 100% !important">
+                        <div class="card-group">
+                            <div class="m-1 card text-white bg-secondary sm-3" style="max-width: 11rem; min-width: 11rem;">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        PM2100<br>
+                                        канал 1
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                        <label class="form-check-label" for="flexCheckDefault">
+                                            Включить
+                                        </label>
+                                    </div>
+
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" class="form-control" value="17.37">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">мВт</button>
+                                            <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#">мВт</a>
+                                            <a class="dropdown-item" href="#">dBm</a>
+                                            </div>
+                                        </div>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="panel-footer">
+
+    </div>
+</div>

@@ -1,0 +1,82 @@
+<div class="panel panel-default main-panel" id="panel-sm" style="display: none;">
+    <div class="panel-body" style="height: 100% !important">
+        <div class="row row-cols-2"  style="height: 100% !important">
+            <div class="col col-3">
+                <div class="panel panel-default border">
+                    <div class="panel-header p-1">
+                        <h6>Настройка измерения</h6>
+                    </div>
+                    <div class="panel-body" style="height: 90% !important">
+                        <div class="row p-1">
+                            <div class="col">Лазер</div>
+                        </div>
+                        <div class="row p-1">
+                            <div class="col">
+                                <select name="cm_laser" id="cm_laser" class="form-select">
+                                    <option value="ITLA5100" selected>ITLA5100</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row p-1">
+                            <div class="col">Длина волны</div>
+                        </div>
+                        <div class="row p-1">
+                            <div class="col">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">нм</span>
+                                    </div>
+                                </div>
+                                <span>Допустимый диапазон: <br>
+                                    От: мВт<br>
+                                    До: мВт
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row p-1">
+                            <div class="col">Мощность</div>
+                        </div>
+                        <div class="row p-1">
+                            <div class="col">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">мВт</span>
+                                    </div>
+                                </div>
+                                <span>Допустимый диапазон: <br>
+                                    От: мВт<br>
+                                    До: мВт
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row p-1">
+                            <div class="col">
+                                <button class="btn btn-sm btn-light"data-bs-toggle="modal" data-bs-target="#sm_devices_modal">Приборы</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn btn-sm btn-light ms-1">Начать измерение</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-9">
+                <div class="panel panel-default border">
+                    <div class="panel-body p-1" style="height: 95% !important">
+                        <div id="single_meas_plot" style="width:100%;height:100%;"></div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn-sm btn-light ms-1">Очистить график</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -3,7 +3,9 @@ import logging
 import os
 import json
 
-from PyQt5 import QtWidgets
+import eel
+
+# from PyQt5 import QtWidgets
 
 from itf_handler import ItfHandler
 from core.context import Context
@@ -60,12 +62,21 @@ def main():
 
     init_comports()
 
-    app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
-    # Создаём объект класса ItfHandler
-    window = ItfHandler()
+    eel.init('src/front', allowed_extensions=['.js', '.html'],)
+    eel.start(
+        'templates/main.html',
+        jinja_templates='templates',
+        mode='chrome',
+        size=(720, 480),
+        position=(0,0)
+    )
 
-    window.show()  # Показываем окно
-    app.exec_()    # и запускаем приложение
+    # app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
+    # # Создаём объект класса ItfHandler
+    # window = ItfHandler()
+
+    # window.show()  # Показываем окно
+    # app.exec_()    # и запускаем приложение
 
 if __name__ == "__main__":
     main()

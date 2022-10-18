@@ -1,0 +1,89 @@
+* {
+    margin: 0;
+    padding: 0;
+  }
+  html,
+  body,
+  .wrapper {
+    height: 100%;
+    background-color: #AAAAAA;
+  }
+
+  body{
+    padding:0px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+  .content {
+    box-sizing: border-box;
+    height: 82%;
+    background-color: #BBBBBB;
+    margin: 10px;
+    padding: 10px;
+  }
+  .header {
+    height: 12%;
+    padding: 0px;
+  }
+  .footer {
+    height: 8%;
+    padding: 10px;
+    margin-top: -10px;
+  }
+
+  .nav {
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .panel {
+    height: 100% !important;
+  }
+
+  .panel-menu {
+    top: 33px !important;
+  }
+
+  .panel-switcher:hover {
+    background-color: #999999;
+  }
+
+  .no-devices {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+  }
+
+  .no-devices:hover {
+    background-color: #999999;
+  }
+
+  .lamp {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    border: 1px solid black;
+  }
+
+  .lamp-no-border {
+    border: 1px solid rgba(0, 0, 0, 0);
+  }
+
+  .lamp-init {
+    background-color: #AAAAAA;
+  }
+
+  .lamp-success {
+    background-color: #44be07;
+  }
+
+  .lamp-error {
+    background-color: #de0808;
+  }
+
+  .lamp-busy {
+    background-color: #e1da13;
+  }
