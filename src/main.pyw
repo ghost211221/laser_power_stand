@@ -5,14 +5,11 @@ import json
 
 import eel
 
-# from PyQt5 import QtWidgets
+from  middle.devices_views import *
 
-from itf_handler import ItfHandler
 from core.context import Context
-from core.fabric import enumerate_entities, get_class_from_imported_module, enitity_fabric
+from core.fabric import enumerate_entities, get_class_from_imported_module
 from core.logs.log import init_log
-from core.utils import get_comports_list
-
 context = Context()
 log = logging.getLogger(__name__)
 
@@ -34,19 +31,6 @@ def init_entities(path, field, group):
 
     setattr(context, group, entities)
 
-def init_devices():
-    if not getattr(context, 'devices'):
-        context.devices = []
-
-    else:
-        for device in context.devices:
-            if device['enabled']:
-                device['instance'] = enitity_fabric(context.devices_classes, 'dev_name', device['dev_name'])
-
-def init_comports():
-    context.comports = get_comports_list()
-
-
 def main():
     init_context()
     # init log, get connectiond and devices classes, put them to context
@@ -54,29 +38,20 @@ def main():
     connections_path = 'src.core.connections'
     if context.run_mode == 'testing':
         connections_path = 'tests.mocks.core.connections'
+    # prepare connection classes
     init_entities(connections_path, 'connection_type', 'connections_classes')
+    # prepare devices classes
     init_entities('src.devices', 'dev_name', 'devices_classes')
-
-    # create enabled devices instances
-    init_devices()
-
-    init_comports()
 
     eel.init('src/front', allowed_extensions=['.js', '.html'],)
     eel.start(
         'templates/main.html',
         jinja_templates='templates',
         mode='chrome',
-        size=(720, 480),
-        position=(0,0)
+        size=(1160, 975),
+        position=(0,0),
+        jinja_env={'hello': 'hello'}
     )
-
-    # app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
-    # # Создаём объект класса ItfHandler
-    # window = ItfHandler()
-
-    # window.show()  # Показываем окно
-    # app.exec_()    # и запускаем приложение
 
 if __name__ == "__main__":
     main()

@@ -105,8 +105,8 @@ class ITLA5300(AbstractDevice):
     dev_name = 'ITLA5300'
     dev_type = 'laser'
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, label):
+        super().__init__(label)
         self.baudrate = None
         self.__helper = Helper()
 

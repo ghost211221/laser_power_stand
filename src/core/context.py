@@ -9,6 +9,10 @@ class Context():
         return cls.instance
 
     def __init__(self):
+        # list of added devices
+        self.devices = []
+        self.devices_classes = {}
+
         self.run_cont_measure = False
         self.run_single_measure = False
         self.run_scan = False

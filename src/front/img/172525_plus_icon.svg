@@ -4,8 +4,8 @@
 	 viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
 <style type="text/css">
 	.st0{fill:none;}
-	.st1{fill:none;stroke:#1A9431;stroke-width:4;stroke-miterlimit:10;}
-	.st2{fill:none;stroke:#1B9531;stroke-width:4;stroke-miterlimit:10;}
+	.st1{fill:#63B72A;stroke:#5EB640;stroke-width:4;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:#5BB648;stroke-width:4;stroke-miterlimit:10;}
 </style>
 <rect y="0" class="st0" width="50" height="50"/>
 <line class="st1" x1="9" y1="25" x2="41" y2="25"/>

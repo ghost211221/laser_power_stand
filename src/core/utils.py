@@ -15,5 +15,35 @@ def mW_to_dBm(mW):
 def dBm_to_mW(dBm):
     return 10 ** (dBm / 10)
 
-def get_pm_devices():
-    return [dev_dict['instance'] for dev_dict in context.devices if dev_dict['type'] == 'power_meter']
+def get_devices_list():
+    devices = []
+
+    for device in context.devices:
+        devices.append({
+            'label': device.label,
+            'type': device.dev_type,
+            'model': device.dev_name,
+            'connection_type': device.connection_type,
+            'addr': device.dev_addr,
+        })
+
+    return devices
+
+def get_devices_models_list(group=None):
+    """get list of devices models. if group proveided - devices of group"""
+    devices = []
+    for k, v in context.devices_classes.items():
+        if not group or v.dev_type == group:
+            devices.append(k)
+
+    return devices
+
+
+def get_devices_labels_list():
+    """get list of devices labels."""
+    labels = []
+    for device in context.devices:
+        if device.label:
+            labels.append(device.label)
+
+    return labels

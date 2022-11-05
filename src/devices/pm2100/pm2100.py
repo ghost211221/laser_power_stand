@@ -16,55 +16,54 @@ class PM2100(AbstractDevice):
     dev_type = 'power_meter'
     chanels = 4
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, label):
+        super().__init__(label)
         self.baudrate = None
 
     def set_timeout(self, timeout):
         self.timeout = timeout
-        
+
     def init(self):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
-            
+
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
-        
+
         cmd = '*IDN?'
         ans = self.io(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
-        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')                
-                
+        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+
         self.send('AVG 0.5\r\n')
         self.status = 'ready'
-    
+
     def set_wavelen(self, wavelen):
         if not self.connection or not self.connection.connected:
-            raise ConnectionError(f'Device {self.dev_name} is not connected')            
-            
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
+
         self.q.put(f'\nSet wavelen {wavelen}MHz on {self.dev_name} on ')
         self.status = 'processing'
-        
+
         cmd = f'WAV {wavelen}'
         ans = self.send(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\n')
-        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\n')                
+        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\n')
 
         self.status = 'ready'
-    
+
     def get_power(self):
         if not self.connection or not self.connection.connected:
-            raise ConnectionError(f'Device {self.dev_name} is not connected')            
-            
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
+
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
         self.status = 'processing'
-        
+
         cmd = 'READ? 0'
         ans = self.io(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
-        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')                
+        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
 
         self.status = 'ready'
-        
+
         return ans.decode().strip().split(',')
-        

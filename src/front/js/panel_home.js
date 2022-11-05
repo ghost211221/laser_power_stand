@@ -1,0 +1,216 @@
+$( document ).ready(function() {
+    home_panel_handler.render_devices();
+    home_panel_handler.set_list_of_devices_models();
+    home_panel_handler.render_errors([]);
+
+    $('#device_type').change(function() {
+        home_panel_handler.set_list_of_devices_models();
+    });
+
+    home_panel_handler.chain_device_filling();
+
+    $('#submit_new_device').click(async function() {
+        let pass = await home_panel_handler.validate();
+        home_panel_handler.add_new_device(
+            pass,
+            $('#device_name').val(),
+            $('#device_type').val(),
+            $('#device_model').val(),
+            $('#device_connection_type').val(),
+            $('#device_addr').val(),
+        );
+    })
+
+});
+
+let home_panel_handler = {
+    no_device_submit_errors: null,
+    added_devices: [],
+    switch_visual_mode: function() {
+        if (this.added_devices.length === 0) {
+            $('.has-devices').hide();
+            $('.no-devices').show();
+        } else {
+            $('.has-devices').show();
+            $('.no-devices').hide();
+        }
+    },
+
+    clear_modal: function() {
+        $('#device_name').val('');
+        $('#device_type option').prop("selected", false);
+        $('#device_model option').prop("selected", false);
+        $('#device_connection_type option').prop("selected", false);
+        $('#device_addr').val('');
+        $('#add_new_device_alert').empty();
+    },
+
+    reinit_modal: function() {
+        $('#device_model').prop("disabled", false);
+        $('#device_connection_type').prop("disabled", false);
+        $('#device_addr').prop("disabled", false);
+    },
+
+    add_new_device: function(pass, device_name, device_type, device_model, device_connection_type, device_addr) {
+        if (!pass) {
+            // validation failed, do not add device
+            return
+        }
+
+        // add to python
+        eel.e_add_new_device(device_name, device_type, device_model, device_connection_type, device_addr)().then(response =>  {
+            if (response.status === 'success') {
+                this.clear_modal();
+                this.reinit_modal();
+                this.render_devices();
+                $('#new_device_modal').modal('hide');
+            } else if (response.status === 'fail') {
+                alert(response.message);
+            }
+        });
+    },
+
+    render_device_card: function(device_name, device_type, device_model, device_connection_type, device_addr) {
+        $('.devices-card-group').append(`
+            <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;" id="${device_name}">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        ${device_name}
+                        <div class="lamp lamp-init"></div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex  flex-column justify-content-md-center">
+                        <small class="form-text text-dark">${device_type}</small>
+                        <small class="form-text text-dark">${device_model}</small>
+                        <small class="form-text text-dark">${device_addr}</small>
+                        <button class="btn btn-small btn-light mt-2">Подключиться</button>
+                    </div>
+                </div>
+            </div>
+        `);
+    },
+
+    render_add_device_widget: function() {
+        $('.devices-card-group').append(`
+            <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;" id="add_new_device">
+                <div class="card-body">
+                    <div class="d-flex  flex-column justify-content-md-center">
+                    <img src="../img/172525_plus_icon.svg" alt="">
+                    </div>
+                </div>
+            </div>
+        `);
+        $('#add_new_device').click(function() {
+            $('#new_device_modal').modal('show')
+        });
+    },
+
+    render_devices: function() {
+        $('.devices-card-group').empty()
+        eel.e_get_added_devices()().then(response => {
+            this.added_devices = response;
+            this.switch_visual_mode();
+
+            if (response.length !== 0) {
+                for (let device of this.added_devices) {
+                    this.render_device_card(device.label, device.type, device.model, device.connection_type, device.addr);
+                }
+                this.render_add_device_widget();
+            }
+        });
+
+    },
+
+
+    set_list_of_devices_models: function() {
+        let group = $('#device_type').val();
+        // clean models select and add none option
+        const select = $('#device_model')
+        $(select).children().remove();
+        $(select).append(`<option value="" selected></option>`);
+
+        eel.e_get_devices_models_list(group)().then((response) => {
+            for (let item of response) {
+                $(select).append(`<option value="${item}">${item}</option>`);
+            }
+        });
+    },
+
+    chain_device_filling: function() {
+        $('#device_type').change(function() {
+            if ($('#device_type').val() === '') {
+                $('#device_model').prop("disabled", true);
+                $('#device_connection_type').prop("disabled", true);
+                $('#device_name').attr("disabled", "disabled");
+            } else {
+                $('#device_model').prop("disabled", false);
+            }
+        })
+
+        $('#device_model').change(function() {
+            if ($('#device_model').val() === '') {
+                $('#device_connection_type').prop("disabled", true);
+                $('#device_name').attr("disabled", "disabled");
+            } else {
+                $('#device_connection_type').prop("disabled", false);
+            }
+        })
+
+        $('#device_connection_type').change(function() {
+            if ($('#device_connection_type').val() === '') {
+                $('#device_addr').prop("disabled", true);
+            } else {
+                $('#device_addr').prop("disabled", false);
+            }
+        })
+    },
+
+    render_errors: function(messages) {
+        if (messages.length === 0) {
+            $('#add_new_device_alert').hide();
+            $('#add_new_device_alert').empty()
+        } else {
+            $('#add_new_device_alert').show();
+            for (let message of messages) {
+                $('#add_new_device_alert').append(`${message}<br>`)
+            }
+        }
+    },
+
+    validate: async function() {
+        this.render_errors([]);
+        let messages = [];
+        let label = $('#device_name').val();
+
+        if (label === '') {
+            messages.push('Не указана метка прибора')
+        }
+
+        if ($('#device_type').val() === '') {
+            messages.push('Не выбран тип прибора')
+        }
+
+        if ($('#device_model').val() === '') {
+            messages.push('Не выбрана модель прибора')
+        }
+
+        if ($('#device_connection_type').val() === '') {
+            messages.push('Не выбран протокол связи с прибором')
+        }
+
+        if ($('#device_addr').val() === '') {
+            messages.push('Не указан адрес/порт для связи с прибором')
+        }
+
+
+        // check that lable in unique
+        const labels = await eel.e_get_devices_labels_list()()
+        if (labels.includes(label)) {
+            messages.push('Прибор с такой меткой уже существует')
+        }
+
+        this.render_errors(messages);
+        return messages.length === 0;
+    },
+}
