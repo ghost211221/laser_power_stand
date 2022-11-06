@@ -52,6 +52,7 @@ class AbstractDevice(metaclass=ABCMeta):
 
     def close(self):
         self.connection.close()
+        self.connection = None
         self.status = 'init'
         self.q.put(f'\n{self.dev_name} disconnected from {self.dev_addr}')
 

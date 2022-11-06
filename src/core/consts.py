@@ -14,3 +14,9 @@ COLORS_FOR_PLOTS = [
     "#008080",
     "#000080",
 ]
+
+CONNECTIONS_TYPES = [
+    ('socket', 'Сеть', 'Ethernet'),
+    ('com', 'COM', 'COM'),
+    ('visa', 'VISA', 'VISA'),
+]

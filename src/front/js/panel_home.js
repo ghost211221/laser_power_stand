@@ -1,6 +1,8 @@
 $( document ).ready(function() {
+    home_panel_handler.get_connections_translation_dict();
     home_panel_handler.render_devices();
     home_panel_handler.set_list_of_devices_models();
+    home_panel_handler.set_list_of_devices_models_in_options();
     home_panel_handler.render_errors([]);
 
     $('#device_type').change(function() {
@@ -21,11 +23,16 @@ $( document ).ready(function() {
         );
     })
 
+    $('#update_device').click(function() {
+        home_panel_handler.update_device();
+    })
+
 });
 
 let home_panel_handler = {
     no_device_submit_errors: null,
     added_devices: [],
+    connections_translation_dict: [],
     switch_visual_mode: function() {
         if (this.added_devices.length === 0) {
             $('.has-devices').hide();
@@ -51,6 +58,11 @@ let home_panel_handler = {
         $('#device_addr').prop("disabled", false);
     },
 
+    get_connections_translation_dict: async function() {
+        const res = await eel.e_get_connections_translations()();
+        this.connections_translation_dict = res;
+    },
+
     add_new_device: function(pass, device_name, device_type, device_model, device_connection_type, device_addr) {
         if (!pass) {
             // validation failed, do not add device
@@ -70,9 +82,25 @@ let home_panel_handler = {
         });
     },
 
+    update_device: function() {
+        eel.e_update_device(
+            $('#options__device_name').val(),
+            $("#options__device_conntection").val(),
+            $('#options__device_addr').val()
+        )().then(response => {
+            if (response.status === 'success') {
+                this.render_devices();
+                $('#device_modal').modal('hide');
+            } else if (response.status === 'fail') {
+                alert(response.message);
+            }
+        })
+},
+
     render_device_card: function(device_name, device_type, device_model, device_connection_type, device_addr) {
+        let that = this;
         $('.devices-card-group').append(`
-            <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;" id="${device_name}">
+            <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;" id="options__${device_name}">
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         ${device_name}
@@ -84,11 +112,31 @@ let home_panel_handler = {
                         <small class="form-text text-dark">${device_type}</small>
                         <small class="form-text text-dark">${device_model}</small>
                         <small class="form-text text-dark">${device_addr}</small>
-                        <button class="btn btn-small btn-light mt-2">Подключиться</button>
+                        <button class="btn btn-sm btn-light mt-2" id="connect__${device_name}">Подключиться</button>
+                        <button class="btn btn-sm btn-light mt-2" id="delete__${device_name}">Удалить</button>
                     </div>
                 </div>
             </div>
         `);
+
+        // enable read and modify for device
+        let selector = `#options__${device_name}`;
+        $(selector).click(function() {
+            $('#device_modal').modal('show');
+            eel.e_get_device_info(this.id.split('__')[1])().then(device => {
+                $('#options__device_name').val(device.device_name)
+                let type = null;
+                for (let connection_tup of that.connections_translation_dict) {
+                    if (connection_tup.includes(device.device_connection_type)) {
+                        type = connection_tup[2];
+                    }
+                }
+                $("#options__device_type").val(device.device_type).change();
+                $("#options__device_model").val(device.device_model).change();
+                $("#options__device_conntection").val(type).change();
+                $('#options__device_addr').val(device.device_addr)
+            });
+        })
     },
 
     render_add_device_widget: function() {
@@ -122,7 +170,6 @@ let home_panel_handler = {
 
     },
 
-
     set_list_of_devices_models: function() {
         let group = $('#device_type').val();
         // clean models select and add none option
@@ -131,6 +178,18 @@ let home_panel_handler = {
         $(select).append(`<option value="" selected></option>`);
 
         eel.e_get_devices_models_list(group)().then((response) => {
+            for (let item of response) {
+                $(select).append(`<option value="${item}">${item}</option>`);
+            }
+        });
+    },
+
+    set_list_of_devices_models_in_options: function() {
+        const select = $('#options__device_model')
+        $(select).children().remove();
+        $(select).append(`<option value="" selected></option>`);
+
+        eel.e_get_devices_models_list('')().then((response) => {
             for (let item of response) {
                 $(select).append(`<option value="${item}">${item}</option>`);
             }

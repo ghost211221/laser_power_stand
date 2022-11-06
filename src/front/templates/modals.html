@@ -62,6 +62,69 @@
     </div>
 </div>
 
+<!-- add new device modal -->
+<div class="modal fade" id="device_modal" tabindex="-1" aria-labelledby="device_modal" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Информация о приборе</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-danger" role="alert" id="options__device_alert" style="display: none"></div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Метка прибора:</div>
+                            <div class="col col-8">
+                                <input class="form-control" type="text" name="options__device_name" id="options__device_name" disabled>
+                            </div>
+                        </div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Тип прибора:</div>
+                            <div class="col col-8">
+                                <select name="options__device_type" id="options__device_type" class="form-select" disabled>
+                                    <option value="" selected></option>
+                                    <option value="laser">Лазер</option>
+                                    <option value="power_meter">Измеритель</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Модель прибора:</div>
+                            <div class="col col-8">
+                                <select name="options__device_model" id="options__device_model" class="form-select" disabled>
+                                    <option value="" selected></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Тип подключения:</div>
+                            <div class="col col-8">
+                                <select name="options__device_conntection" id="options__device_conntection" class="form-select">
+                                    <option value="" selected></option>
+                                    <option value="COM">COM</option>
+                                    <option value="Ethernet">Ethernet</option>
+                                    <option value="USB">USB</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-md row-cols-2">
+                            <div class="col col-4">Адрес/Порт:</div>
+                            <div class="col col-8"><input class="form-control" type="text" name="options__device_addr" id="options__device_addr"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="update_device">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- select devices for single meas -->
 <div class="modal fade" id="sm_devices_modal" tabindex="-1" aria-labelledby="sm_devices" aria-hidden="true">
     <div class="modal-dialog modal-md">

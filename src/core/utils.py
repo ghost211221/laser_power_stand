@@ -47,3 +47,11 @@ def get_devices_labels_list():
             labels.append(device.label)
 
     return labels
+
+def get_device_by_label(label):
+    if not label:
+        return
+
+    for device in context.devices:
+        if device.label == label:
+            return device
