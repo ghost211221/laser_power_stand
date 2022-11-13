@@ -33,7 +33,7 @@ class AbstractDevice(metaclass=ABCMeta):
 
     def connect(self):
         for con_class in context.connections_classes.values():
-            if con_class.connection_type == self.connection_type:
+            if con_class.connection_type == self.connection_type.lower():
                 self.connection = con_class(self.dev_addr)
                 break
 
@@ -42,10 +42,10 @@ class AbstractDevice(metaclass=ABCMeta):
 
         try:
             self.connection.connect()
-        except Exception:
+        except Exception as e:
             self.status = 'error'
             self.q.put(f'\n{self.dev_name} failed to connect to {self.dev_addr}')
-            return
+            raise ConnectionError('Не удалось подключиться к прибору {self.label}: {e}')
 
         self.status = 'idle'
         self.q.put(f'\n{self.dev_name} connected to {self.dev_addr}')

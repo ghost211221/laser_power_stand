@@ -100,11 +100,11 @@ let home_panel_handler = {
     render_device_card: function(device_name, device_type, device_model, device_connection_type, device_addr) {
         let that = this;
         $('.devices-card-group').append(`
-            <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;" id="options__${device_name}">
-                <div class="card-header">
+            <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;">
+                <div class="card-header" id="options__${device_name}">
                     <div class="d-flex justify-content-between">
                         ${device_name}
-                        <div class="lamp lamp-init"></div>
+                        <div class="lamp lamp-init" id="lamp__${device_name}"></div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -112,12 +112,40 @@ let home_panel_handler = {
                         <small class="form-text text-dark">${device_type}</small>
                         <small class="form-text text-dark">${device_model}</small>
                         <small class="form-text text-dark">${device_addr}</small>
-                        <button class="btn btn-sm btn-light mt-2" id="connect__${device_name}">Подключиться</button>
+                        <button class="btn btn-sm btn-light mt-2" id="connect__${device_name}" dev_name="${device_name}" mode="connect">Подключиться</button>
                         <button class="btn btn-sm btn-light mt-2" id="delete__${device_name}">Удалить</button>
                     </div>
                 </div>
             </div>
         `);
+
+        // connect device on button press
+        let btn_selector = `#connect__${device_name}`;
+        $(btn_selector).click(function() {
+            let dev_name = $(this).attr('dev_name');
+            let mode = $(this).attr('mode');
+            eel.e_connect_device(dev_name, mode)().then(response => {
+                let lamp = $(`#lamp__${device_name}`);
+                $(lamp).removeClass('lamp-init');
+                if (response.status === 'success') {
+                    if (mode === 'connect') {
+                        $(lamp).addClass('lamp-success');
+                        $(btn_selector).text('Отключиться');
+                        $(btn_selector).attr('mode', 'disconnect');
+                    } else if (mode === 'disconnect') {
+                        $(lamp).removeClass('lamp-success');
+                        $(lamp).addClass('lamp-init');
+                        $(btn_selector).text('Подключиться');
+                        $(btn_selector).attr('mode', 'connect');
+                    }
+                } else if (response.status === 'fail') {
+                    $(lamp).addClass('lamp-error');
+                    $(btn_selector).text('Подключиться');
+                    $(btn_selector).prop('mode', 'connect');
+                    alert(response.message);
+                }
+            })
+        });
 
         // enable read and modify for device
         let selector = `#options__${device_name}`;
