@@ -67,6 +67,7 @@ def e_get_device_info(device_name):
         'device_model': device.dev_name,
         'device_connection_type': device.connection_type,
         'device_addr': device.dev_addr,
+        'device_status': device.status
     }
 
 @eel.expose
@@ -109,6 +110,20 @@ def e_connect_device(dev_name, mode='connect'):
             msg = f'Недопустимая операция: {mode}'
     except ConnectionError as e:
         msg = e
+        status = 'fail'
+
+    return {'status': status, 'message': msg}
+
+@eel.expose
+def e_delete_device(dev_name):
+    msg = ''
+    status = 'success'
+    try:
+        for device in context.devices:
+            if dev_name == device.label:
+                del context.devices[context.devices.index(device)]
+    except Exception as e:
+        msg = f'Не удалось удалить прибор: {e}'
         status = 'fail'
 
     return {'status': status, 'message': msg}

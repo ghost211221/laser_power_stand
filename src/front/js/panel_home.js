@@ -97,14 +97,26 @@ let home_panel_handler = {
         })
 },
 
-    render_device_card: function(device_name, device_type, device_model, device_connection_type, device_addr) {
+    render_device_card: function(device_name, device_type, device_model, device_connection_type, device_addr, device_status) {
         let that = this;
+        let device_lamp_class = 'lamp-init';
+        let button_mode = 'connect';
+        let button_text = 'Подключиться';
+        // restore device status
+        if (device_status === 'ready') {
+            device_lamp_class = 'lamp-success';
+            button_mode = 'disconnect';
+            button_text = 'Отключиться';
+        } else if (device_status === 'error') {
+            device_lamp_class = 'lamp-error';
+        }
+
         $('.devices-card-group').append(`
-            <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;">
+            <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;" id="object__${device_name}">
                 <div class="card-header" id="options__${device_name}">
                     <div class="d-flex justify-content-between">
                         ${device_name}
-                        <div class="lamp lamp-init" id="lamp__${device_name}"></div>
+                        <div class="lamp ${device_lamp_class}" id="lamp__${device_name}"></div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -112,8 +124,8 @@ let home_panel_handler = {
                         <small class="form-text text-dark">${device_type}</small>
                         <small class="form-text text-dark">${device_model}</small>
                         <small class="form-text text-dark">${device_addr}</small>
-                        <button class="btn btn-sm btn-light mt-2" id="connect__${device_name}" dev_name="${device_name}" mode="connect">Подключиться</button>
-                        <button class="btn btn-sm btn-light mt-2" id="delete__${device_name}">Удалить</button>
+                        <button class="btn btn-sm btn-light mt-2" id="connect__${device_name}" dev_name="${device_name}" mode="${button_mode}">${button_text}</button>
+                        <button class="btn btn-sm btn-light mt-2" id="delete__${device_name}" dev_name="${device_name}">Удалить</button>
                     </div>
                 </div>
             </div>
@@ -165,6 +177,21 @@ let home_panel_handler = {
                 $('#options__device_addr').val(device.device_addr)
             });
         })
+
+        // delete device
+        let del_selector = `#delete__${device_name}`;
+        $(del_selector).click(function() {
+            let device_name = $(this).attr('dev_name');
+            eel.e_delete_device(device_name)().then(response => {
+                if (response.status === 'success') {
+                    that.render_devices();
+                } else if (response.status === 'fail') {
+                    alert(response.msg);
+                }
+            })
+        })
+
+
     },
 
     render_add_device_widget: function() {
@@ -190,7 +217,7 @@ let home_panel_handler = {
 
             if (response.length !== 0) {
                 for (let device of this.added_devices) {
-                    this.render_device_card(device.label, device.type, device.model, device.connection_type, device.addr);
+                    this.render_device_card(device.label, device.type, device.model, device.connection_type, device.addr, device.status);
                 }
                 this.render_add_device_widget();
             }
