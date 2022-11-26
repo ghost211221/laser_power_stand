@@ -2,14 +2,19 @@ import sys  # sys нужен для передачи argv в QApplication
 import logging
 import os
 import json
+from threading import Thread
 
 import eel
 
 from  middle.devices_views import *
+from  middle.log_views import *
 
 from core.context import Context
 from core.fabric import enumerate_entities, get_class_from_imported_module
 from core.logs.log import init_log
+from core.workers import log_processing_worker
+
+
 context = Context()
 log = logging.getLogger(__name__)
 
@@ -31,6 +36,12 @@ def init_entities(path, field, group):
 
     setattr(context, group, entities)
 
+def close_callback(route, websockets):
+    print('callback')
+    context.exit_mode = True
+    exit()
+
+
 def main():
     init_context()
     # init log, get connectiond and devices classes, put them to context
@@ -44,13 +55,18 @@ def main():
     init_entities('src.devices', 'dev_name', 'devices_classes')
 
     eel.init('src/front', allowed_extensions=['.js', '.html'],)
+
+    log_queue_processor = Thread(target=log_processing_worker)
+    log_queue_processor.start()
+
     eel.start(
         'templates/main.html',
         jinja_templates='templates',
         mode='chrome',
         size=(1160, 975),
         position=(0,0),
-        jinja_env={'hello': 'hello'}
+        jinja_env={'hello': 'hello'},
+        close_callback=close_callback
     )
 
 if __name__ == "__main__":

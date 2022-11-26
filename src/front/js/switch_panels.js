@@ -2,11 +2,7 @@ $( document ).ready(function() {
     let panels = $('.main-panel');
     $('.panel-switcher').each(function() {
         let switcher = this;
-        console.log(switcher.id);
-        // console.log(this);
-        // console.log(switcher);
         $(switcher).click(function() {
-            console.log(switcher.id, " clicked");
             panels.each(function() {
                 $(this).hide();
             })
