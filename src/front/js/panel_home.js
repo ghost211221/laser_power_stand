@@ -29,9 +29,16 @@ $( document ).ready(function() {
 
 });
 
+eel.expose(set_device_status);
+function set_device_status(device, status) {
+    home_panel_handler.set_device_status(device, status);
+}
+
+
 let home_panel_handler = {
     no_device_submit_errors: null,
     added_devices: [],
+    waiting_connection_devices: [],
     connections_translation_dict: [],
     switch_visual_mode: function() {
         if (this.added_devices.length === 0) {
@@ -95,7 +102,36 @@ let home_panel_handler = {
                 alert(response.message);
             }
         })
-},
+    },
+
+    set_device_status: function(device_name, status) {
+        let that = this;
+        let lamp = $(`#lamp__${device_name}`);
+        $(lamp).removeClass('lamp-init lamp-success lamp-error lamp-busy');
+
+        if (status === 'init') {
+            $(lamp).addClass('lamp-init');
+            if (that.waiting_connection_devices.includes(device_name)) {
+                let btn_selector = `#connect__${device_name}`;
+                $(btn_selector).text('Подключиться');
+                $(btn_selector).prop('mode', 'connect');
+                $(btn_selector).prop('disabled', false);
+                that.waiting_connection_devices = that.waiting_connection_devices.filter(function(e) { return e !== device_name })
+            }
+        } else if (status === 'error') {
+            $(lamp).addClass('lamp-error');
+            let btn_selector = `#connect__${device_name}`;
+            $(btn_selector).prop('disabled', false);
+        } else if (status === 'processing') {
+            $(lamp).addClass('lamp-busy')
+        } else if (status === 'idle') {
+            $(lamp).addClass('lamp-success')
+            $(btn_selector).text('Отключиться');
+            $(btn_selector).attr('mode', 'disconnect');
+            $(btn_selector).prop('disabled', false);
+            that.waiting_connection_devices = that.waiting_connection_devices.filter(function(e) { return e !== device_name })
+        }
+    },
 
     render_device_card: function(device_name, device_type, device_model, device_connection_type, device_addr, device_status) {
         let that = this;
@@ -136,19 +172,17 @@ let home_panel_handler = {
         $(btn_selector).click(function() {
             let dev_name = $(this).attr('dev_name');
             let mode = $(this).attr('mode');
+            // that.waiting_connection_devices.append(dev_name);
+            // $(this).prop('disabled', true);
             eel.e_connect_device(dev_name, mode)().then(response => {
-                let lamp = $(`#lamp__${device_name}`);
-                $(lamp).removeClass('lamp-init');
                 if (response.status === 'success') {
                     if (mode === 'connect') {
-                        $(lamp).addClass('lamp-success');
-                        $(btn_selector).text('Отключиться');
-                        $(btn_selector).attr('mode', 'disconnect');
+
+                        // $(btn_selector).text('Отключиться');
+                        // $(btn_selector).attr('mode', 'disconnect');
                     } else if (mode === 'disconnect') {
-                        $(lamp).removeClass('lamp-success');
-                        $(lamp).addClass('lamp-init');
-                        $(btn_selector).text('Подключиться');
-                        $(btn_selector).attr('mode', 'connect');
+                        // $(btn_selector).text('Подключиться');
+                        // $(btn_selector).attr('mode', 'connect');
                     }
                 } else if (response.status === 'fail') {
                     $(lamp).addClass('lamp-error');
