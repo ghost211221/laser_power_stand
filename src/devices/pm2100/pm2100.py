@@ -36,7 +36,7 @@ class PM2100(AbstractDevice):
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
 
         self.send('AVG 0.5\r\n')
-        self.status = 'ready'
+        self.status = 'idle'
 
     def set_wavelen(self, wavelen):
         if not self.connection or not self.connection.connected:

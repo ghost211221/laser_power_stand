@@ -12,7 +12,7 @@ from  middle.log_views import *
 from core.context import Context
 from core.fabric import enumerate_entities, get_class_from_imported_module
 from core.logs.log import init_log
-from core.workers import log_processing_worker
+from core.workers import log_processing_worker, task_processing_worker, get_devices_status_worker
 
 
 context = Context()
@@ -38,8 +38,8 @@ def init_entities(path, field, group):
 
 def close_callback(route, websockets):
     print('callback')
-    context.exit_mode = True
-    exit()
+    # context.exit_mode = True
+    # exit()
 
 
 def main():
@@ -58,6 +58,12 @@ def main():
 
     log_queue_processor = Thread(target=log_processing_worker)
     log_queue_processor.start()
+
+    tasks_processor = Thread(target=task_processing_worker)
+    tasks_processor.start()
+
+    status_processor = Thread(target=get_devices_status_worker)
+    status_processor.start()
 
     eel.start(
         'templates/main.html',

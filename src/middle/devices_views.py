@@ -5,9 +5,11 @@ from core.context import Context
 from core.exceptions import ConnectionError
 from core.fabric import add_device
 from core.utils import get_devices_list, get_devices_models_list, get_devices_labels_list, get_device_by_label
+from core.queues import TasksQueue
 
 
 context = Context()
+tq = TasksQueue()
 
 
 @eel.expose
@@ -96,15 +98,14 @@ def e_update_device(label, connection_type, addr):
 
 @eel.expose
 def e_connect_device(dev_name, mode='connect'):
-    device = get_device_by_label(dev_name)
     msg = ''
     status = 'success'
     try:
         if mode == 'connect':
-            device.connect()
-            device.init()
+            tq.put(([dev_name,], 'connect', []))
+            tq.put(([dev_name,], 'init', []))
         elif mode == 'disconnect':
-            device.close()
+            tq.put(([dev_name,], 'close', []))
         else:
             status = 'fail'
             msg = f'Недопустимая операция: {mode}'

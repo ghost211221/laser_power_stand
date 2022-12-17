@@ -151,7 +151,7 @@ class ITLA5300(AbstractDevice):
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 break
 
-        self.status = 'ready'
+        self.status = 'idle'
 
     def set_wavelen(self, wave_len):
         if not self.connection or not self.connection.connected:

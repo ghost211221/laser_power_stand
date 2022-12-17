@@ -27,5 +27,10 @@ class Context():
 
     def get_device(self, device_name):
         for device in self.devices:
-            if device['dev_name'] == device_name:
+            if device.dev_name == device_name:
+                return device
+
+    def get_device_by_lab(self, device_lab):
+        for device in self.devices:
+            if device.label == device_lab:
                 return device
