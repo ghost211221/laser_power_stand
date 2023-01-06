@@ -31,7 +31,7 @@ class AbstractDevice(metaclass=ABCMeta):
         """ip address:port or com port or ip addrres for visa"""
         self.dev_addr = addr
 
-    def connect(self):
+    def connect(self, *args, **kwargs):
         for con_class in context.connections_classes.values():
             if con_class.connection_type == self.connection_type.lower():
                 self.connection = con_class(self.dev_addr)

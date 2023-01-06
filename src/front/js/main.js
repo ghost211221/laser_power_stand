@@ -108,11 +108,11 @@ let home_panel_handler = {
         let that = this;
         let lamp = $(`#lamp__${device_name}`);
         $(lamp).removeClass('lamp-init lamp-success lamp-error lamp-busy');
+        let btn_selector = `#connect__${device_name}`;
 
         if (status === 'init') {
             $(lamp).addClass('lamp-init');
             if (that.waiting_connection_devices.includes(device_name)) {
-                let btn_selector = `#connect__${device_name}`;
                 $(btn_selector).text('Подключиться');
                 $(btn_selector).prop('mode', 'connect');
                 $(btn_selector).prop('disabled', false);

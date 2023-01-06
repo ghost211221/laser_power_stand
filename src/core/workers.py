@@ -31,8 +31,7 @@ def task_processing_worker():
                 device = c.get_device_by_lab(device_lab)
                 try:
                     func = getattr(device, data[1])
-                    thread = Thread(target=func, args=data[2])
-                    thread.start()
+                    func(data[2])
 
                 except AttributeError:
                     pass
@@ -44,6 +43,6 @@ def task_processing_worker():
 def get_devices_status_worker():
     while not c.exit_mode:
         for device in c.devices:
-            eel.set_device_status(device.dev_name, device.status)
+            eel.set_device_status(device.label, device.status)
         time.sleep(0.5)
 

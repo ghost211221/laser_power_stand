@@ -104,6 +104,8 @@ class ITLA5300(AbstractDevice):
     connection_types = ['com']
     dev_name = 'ITLA5300'
     dev_type = 'laser'
+    wavelen_min = 1527.6
+    wavelen_max = 1568.6
 
     def __init__(self, label):
         super().__init__(label)
@@ -116,7 +118,7 @@ class ITLA5300(AbstractDevice):
     def set_baudrate(self, baudrate):
         self.baudrate = baudrate
 
-    def init(self):
+    def init(self, *args, **kwargs):
         with open(os.path.join(os.path.dirname(__file__), 'init_proc.yml')) as f:
             data = yaml.safe_load(f)
 
@@ -151,6 +153,7 @@ class ITLA5300(AbstractDevice):
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 break
 
+        self.q.put(f'\nInit {self.dev_name} on {self.dev_addr} done')
         self.status = 'idle'
 
     def set_wavelen(self, wave_len):
@@ -269,6 +272,15 @@ class ITLA5300(AbstractDevice):
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
         self.status = 'ready'
+
+    def can_set_wavelen(self, value):
+        if value and isinstance(value, (int, float)):
+            return self.wavelen_min <= value <= self.wavelen_max
+
+        raise Exception(f'Can`t set wavelen="{value}"')
+
+    def can_set_power(self, value):
+        return True
 
 
 if __name__ == '__main__':
