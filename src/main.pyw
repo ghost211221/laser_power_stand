@@ -9,6 +9,7 @@ import eel
 from  middle.devices_views import *
 from  middle.log_views import *
 
+from analyzes.single_meas import SingleMeas
 from core.context import Context
 from core.fabric import enumerate_entities, get_class_from_imported_module
 from core.logs.log import init_log
@@ -35,6 +36,9 @@ def init_entities(path, field, group):
         entities[key] = entity
 
     setattr(context, group, entities)
+
+def init_analyses():
+    context.analyses.append(SingleMeas())
 
 def close_callback(route, websockets):
     print('callback')

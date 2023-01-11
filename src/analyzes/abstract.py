@@ -1,11 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
-from core.context import Context
-
-
-c = Context()
+from core.utils import get_device_by_label
 
 class AbstractAnalyze(metaclass=ABCMeta):
+    analyse_name = ''
     emitter = None  # laser or wideband oscilator
     meters = []  # list of selected meters
     wavelen = None  # value for single or contimues meas
@@ -14,6 +12,10 @@ class AbstractAnalyze(metaclass=ABCMeta):
 
     @abstractmethod
     def set_wavelen(self, value):
+        pass
+
+    @abstractmethod
+    def set_wavelen_range(self, wavelen_min, wavelen_max):
         pass
 
     @abstractmethod
@@ -32,13 +34,10 @@ class AbstractAnalyze(metaclass=ABCMeta):
         self.traces = []
 
     def set_meters(self, devices_labels):
-        self.meters = []
-        for device in c.devices:
-            if device.label in devices_labels:
-                self.meters.append(device)
-
+        for label in devices_labels:
+            device = get_device_by_label(label)
+            self.meters.append(device)
 
     def set_emitter(self, device_label):
-        for device in c.devices:
-            if device.label == device_label:
-                self.emitter = device
+        device = get_device_by_label(device_label)
+        self.emitter = device

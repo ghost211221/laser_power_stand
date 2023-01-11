@@ -27,6 +27,10 @@ $( document ).ready(function() {
         home_panel_handler.update_device();
     })
 
+    $('#sm_laser').change(function() {
+
+    })
+
 });
 
 eel.expose(set_device_status);
@@ -362,3 +366,81 @@ let home_panel_handler = {
         return messages.length === 0;
     },
 }
+
+class Measure {
+
+    constructor() {
+        this.emitter = null
+        this.meters = []
+        this.analysis_name = null
+        this.wavelen = null
+        this.wavelen_min = null
+        this.wavelen_max = null
+        this.power = null
+    }
+
+    set_meters(labels) {
+        this.meters = labels;
+        eel.set_meters(this.analysis_name, this.meters)()
+    }
+
+    set_emitter(label) {
+        this.emitter = label;
+        eel.set_meters(this.analysis_name, this.emitter)()
+    }
+
+    set_wavelen(wavelen) {
+        this.wavelen = wavelen;
+        eel.set_meters(this.analysis_name, this.wavelen)()
+    }
+
+    set_wavelen_range(wavelen_min, wavelen_max) {
+        this.wavelen_min = wavelen_min;
+        this.wavelen_max = wavelen_max;
+        eel.set_meters(this.analysis_name, this.wavelen_min, this.wavelen_max)()
+    }
+
+    set_power(power) {
+        this.power = power;
+        eel.set_power(this.analysis_name, this.power)()
+    }
+
+    clear_traces() {
+        eel.clear_traces(this.analysis_name)()
+    }
+
+    run_analysis() {
+        eel.run_analysis(this.analysis_name)()
+    }
+
+    stop_analysis() {
+        eel.stop_analysis(this.analysis_name)()
+    }
+}
+
+class SingleMeasure extends Measure {
+
+    constructor() {
+      super();
+      this.analysis_name = 'single_meas';
+    }
+
+  }
+
+class ContMeasure extends Measure {
+
+    constructor() {
+      super();
+      this.analysis_name = 'cont_meas';
+    }
+
+  }
+
+class ScanMeasure extends Measure {
+
+    constructor() {
+      super();
+      this.analysis_name = 'scan_meas';
+    }
+
+  }

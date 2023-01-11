@@ -13,6 +13,8 @@ class Context():
         self.devices = []
         self.devices_classes = {}
 
+        self.analyses = []
+
         self.run_cont_measure = False
         self.run_single_measure = False
         self.run_scan = False
@@ -34,3 +36,9 @@ class Context():
         for device in self.devices:
             if device.label == device_lab:
                 return device
+
+    def get_analyse_by_name(self, analyse_name):
+        for analyse in self.analyses:
+            if analyse.analyse_name == analyse_name:
+                return analyse
+

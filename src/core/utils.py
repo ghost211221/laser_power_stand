@@ -56,3 +56,6 @@ def get_device_by_label(label):
     for device in context.devices:
         if device.label == label:
             return device
+
+def get_analyses():
+    return context.analyses
