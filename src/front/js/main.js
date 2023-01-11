@@ -134,6 +134,8 @@ let home_panel_handler = {
             $(btn_selector).attr('mode', 'disconnect');
             $(btn_selector).prop('disabled', false);
             that.waiting_connection_devices = that.waiting_connection_devices.filter(function(e) { return e !== device_name })
+
+            single_measure.nest_emitters();
         }
     },
 
@@ -377,6 +379,23 @@ class Measure {
         this.wavelen_min = null
         this.wavelen_max = null
         this.power = null
+
+        this.emitter_select = null
+        this.metters_select = null
+    }
+
+    nest_emitters() {
+        $(this.emitter_select).empty()
+        for (let emitter of home_panel_handler.added_devices) {
+            if (!emitter.connected || emitter.type !== 'laser') {
+                continue
+            }
+            let option = $('<option>', {value: `${emitter.label}`, text:`${emitter.label}`})
+            if (this.emitter !== null && this.emitter !== '') {
+                option.prop("selected", "selected")
+            }
+            $(this.emitter_select).append($(option))
+        }
     }
 
     set_meters(labels) {
@@ -423,6 +442,7 @@ class SingleMeasure extends Measure {
     constructor() {
       super();
       this.analysis_name = 'single_meas';
+      this.emitter_select = '#sm_laser'
     }
 
   }
@@ -432,6 +452,7 @@ class ContMeasure extends Measure {
     constructor() {
       super();
       this.analysis_name = 'cont_meas';
+      this.emitter_select = '#cm_laser'
     }
 
   }
@@ -441,6 +462,9 @@ class ScanMeasure extends Measure {
     constructor() {
       super();
       this.analysis_name = 'scan_meas';
+      this.emitter_select = '#scm_laser'
     }
 
   }
+
+  const single_measure = new SingleMeasure();
