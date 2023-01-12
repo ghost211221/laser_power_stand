@@ -23,7 +23,7 @@ class PM2100(AbstractDevice):
     def set_timeout(self, timeout):
         self.timeout = timeout
 
-    def init(self):
+    def init(self, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
@@ -38,7 +38,7 @@ class PM2100(AbstractDevice):
         self.send('AVG 0.5\r\n')
         self.status = 'idle'
 
-    def set_wavelen(self, wavelen):
+    def set_wavelen(self, wavelen, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
@@ -52,7 +52,7 @@ class PM2100(AbstractDevice):
 
         self.status = 'ready'
 
-    def get_power(self):
+    def get_power(self, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 

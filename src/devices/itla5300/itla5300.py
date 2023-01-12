@@ -156,7 +156,7 @@ class ITLA5300(AbstractDevice):
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr} done')
         self.status = 'idle'
 
-    def set_wavelen(self, wave_len):
+    def set_wavelen(self, wave_len, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
@@ -193,7 +193,7 @@ class ITLA5300(AbstractDevice):
 
         self.status = 'ready'
 
-    def set_power(self, power):
+    def set_power(self, power, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 

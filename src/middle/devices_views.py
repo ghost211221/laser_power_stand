@@ -41,6 +41,7 @@ def e_add_new_device(device_name, device_type, device_model, device_connection_t
     for tup in CONNECTIONS_TYPES:
         if device_connection_type in tup:
             connection_type = tup[0]
+            break
 
     if not connection_type:
         return {'status': 'fail', 'message': 'Неизвестный тип подключения: {device_connection_type}'}
