@@ -26,7 +26,8 @@ def get_devices_list():
             'connection_type': device.connection_type,
             'addr': device.dev_addr,
             'status': device.status,
-            'connected': bool(device.connection)
+            'connected': bool(device.connection),
+            'chanels': device.chanels
         })
 
     return devices

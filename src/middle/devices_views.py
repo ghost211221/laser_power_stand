@@ -70,7 +70,8 @@ def e_get_device_info(device_name):
         'device_model': device.dev_name,
         'device_connection_type': device.connection_type,
         'device_addr': device.dev_addr,
-        'device_status': device.status
+        'device_status': device.status,
+        'device_chanels': device.chanels
     }
 
 @eel.expose

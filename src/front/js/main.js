@@ -27,6 +27,7 @@ $( document ).ready(function() {
         home_panel_handler.update_device();
     })
 
+
     $('#sm_laser').change(function() {
 
     })
@@ -51,6 +52,14 @@ let home_panel_handler = {
         } else {
             $('.has-devices').show();
             $('.no-devices').hide();
+        }
+    },
+
+    update_device_connection_status: function(label, connected) {
+        for (let device of this.added_devices) {
+            if (device.label === label) {
+                device.connected = connected;
+            }
         }
     },
 
@@ -110,6 +119,7 @@ let home_panel_handler = {
 
     set_device_status: function(device_name, status) {
         let that = this;
+        that.update_device_connection_status(device_name, status !== 'init')
         let lamp = $(`#lamp__${device_name}`);
         $(lamp).removeClass('lamp-init lamp-success lamp-error lamp-busy');
         let btn_selector = `#connect__${device_name}`;
@@ -128,7 +138,7 @@ let home_panel_handler = {
             $(btn_selector).prop('disabled', false);
         } else if (status === 'processing') {
             $(lamp).addClass('lamp-busy')
-        } else if (status === 'idle') {
+        } else if (status === 'ready') {
             $(lamp).addClass('lamp-success')
             $(btn_selector).text('Отключиться');
             $(btn_selector).attr('mode', 'disconnect');
@@ -136,6 +146,7 @@ let home_panel_handler = {
             that.waiting_connection_devices = that.waiting_connection_devices.filter(function(e) { return e !== device_name })
 
             single_measure.nest_emitters();
+            single_measure.nest_trees();
         }
     },
 
@@ -261,8 +272,10 @@ let home_panel_handler = {
                 }
                 this.render_add_device_widget();
             }
+            // nest trees and emitters selects
+            single_measure.nest_emitters();
+            single_measure.nest_trees();
         });
-
     },
 
     set_list_of_devices_models: function() {
@@ -381,7 +394,17 @@ class Measure {
         this.power = null
 
         this.emitter_select = null
-        this.metters_select = null
+        this.metters_tree = null
+        this.tree_data = []
+        $(this.metters_tree).jstree(
+            {
+                'core': {'data': this.tree_data},
+                "checkbox": {
+                    "keep_selected_style" : false
+                },
+                "plugins": [ "wholerow", "checkbox" ]
+            }
+        ); 
     }
 
     nest_emitters() {
@@ -396,6 +419,35 @@ class Measure {
             }
             $(this.emitter_select).append($(option))
         }
+    }
+
+    nest_trees() {
+        this.tree_data = [];
+        for (let device of home_panel_handler.added_devices) {
+            if (device.type !== 'power_meter') {
+                continue
+            }
+            let children = [];
+            for (let i = 1; i <= device.chanels; i++) {
+                children.push({
+                    'id': `device__${device.label}__ch__${i-1}`,
+                    'text': `Канал ${i}`
+                })
+            }
+            let subdata = {
+                'id': `device__${device.label}`,
+                'text' : device.label,
+                'state' : {
+                    'opened' : true,
+                },
+                'children' : children
+            }
+            this.tree_data.push(subdata)
+        }
+
+        // $(this.metters_tree).data('jstree', false).empty().jstree(data);
+        $(this.metters_tree).jstree(true).settings.core.data = this.tree_data;
+        $(this.metters_tree).jstree(true).refresh();
     }
 
     set_meters(labels) {
@@ -443,6 +495,7 @@ class SingleMeasure extends Measure {
       super();
       this.analysis_name = 'single_meas';
       this.emitter_select = '#sm_laser'
+      this.metters_tree = '#jstree_sm'
     }
 
   }

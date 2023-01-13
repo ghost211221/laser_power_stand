@@ -67,7 +67,7 @@ def main():
     tasks_processor.start()
 
     status_processor = Thread(target=get_devices_status_worker)
-    status_processor.start()
+    # status_processor.start()
 
     eel.start(
         'templates/main.html',

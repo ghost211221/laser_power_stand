@@ -10,6 +10,8 @@ from core.context import Context
 from core.exceptions import ConnectionError
 from core.utils import mW_to_dBm
 
+from devices.decorators import process_status
+
 log = logging.getLogger(__name__)
 c = Context()
 
@@ -118,6 +120,7 @@ class ITLA5300(AbstractDevice):
     def set_baudrate(self, baudrate):
         self.baudrate = baudrate
 
+    @process_status
     def init(self, *args, **kwargs):
         with open(os.path.join(os.path.dirname(__file__), 'init_proc.yml')) as f:
             data = yaml.safe_load(f)
@@ -126,7 +129,6 @@ class ITLA5300(AbstractDevice):
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
-        self.status = 'processing'
         for i, data_set in enumerate(data):
             if c.exit_mode:
                 self.q.put(f'{self.dev_name} breaking init loop for exit...')
@@ -148,14 +150,13 @@ class ITLA5300(AbstractDevice):
                 log.info(f'{i:4}: {self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
 
             except Exception as e:
-                self.status = 'error'
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-                break
+                raise Exception(e)
 
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr} done')
-        self.status = 'idle'
 
+    @process_status
     def set_wavelen(self, wave_len, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
@@ -176,7 +177,6 @@ class ITLA5300(AbstractDevice):
 
         # put to regs
         self.q.put(f'\nSet frequency {freq}MHz on {self.dev_name} on ')
-        self.status = 'processing'
 
         for cmd in cmds:
             self.__helper.setRW(cmd[0])
@@ -191,8 +191,7 @@ class ITLA5300(AbstractDevice):
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
-        self.status = 'ready'
-
+    @process_status
     def set_power(self, power, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
@@ -203,7 +202,6 @@ class ITLA5300(AbstractDevice):
 
         # put to regs
         self.q.put(f'\nSet power {power}mW on {self.dev_name} on ')
-        self.status = 'processing'
 
         for cmd in cmds:
             self.__helper.setRW(cmd[0])
@@ -218,8 +216,7 @@ class ITLA5300(AbstractDevice):
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
-        self.status = 'ready'
-
+    @process_status
     def set_beam_on(self):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
@@ -230,7 +227,6 @@ class ITLA5300(AbstractDevice):
 
         # put to regs
         self.q.put(f'\nEnabling beam on {self.dev_name} on ')
-        self.status = 'processing'
 
         for cmd in cmds:
             self.__helper.setRW(cmd[0])
@@ -245,7 +241,7 @@ class ITLA5300(AbstractDevice):
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
-
+    @process_status
     def set_beam_off(self):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
@@ -256,7 +252,6 @@ class ITLA5300(AbstractDevice):
 
         # put to regs
         self.q.put(f'\nDisabling beam {self.dev_name}')
-        self.status = 'processing'
 
         for cmd in cmds:
             self.__helper.setRW(cmd[0])
@@ -270,8 +265,6 @@ class ITLA5300(AbstractDevice):
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-
-        self.status = 'ready'
 
     def can_set_wavelen(self, value):
         if value and isinstance(value, (int, float)):

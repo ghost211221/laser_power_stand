@@ -5,6 +5,7 @@ from ..abstract import AbstractDevice
 from core.context import Context
 from core.exceptions import ConnectionError
 
+from devices.decorators import process_status
 
 log = logging.getLogger(__name__)
 
@@ -23,47 +24,41 @@ class PM2100(AbstractDevice):
     def set_timeout(self, timeout):
         self.timeout = timeout
 
+    @process_status
     def init(self, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
-        self.status = 'processing'
-
         cmd = '*IDN?'
         ans = self.io(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
 
         self.send('AVG 0.5\r\n')
-        self.status = 'idle'
 
+    @process_status
     def set_wavelen(self, wavelen, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         self.q.put(f'\nSet wavelen {wavelen}MHz on {self.dev_name} on ')
-        self.status = 'processing'
 
         cmd = f'WAV {wavelen}'
         ans = self.send(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\n')
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\n')
 
-        self.status = 'ready'
-
+    @process_status
     def get_power(self, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
-        self.status = 'processing'
 
         cmd = 'READ? 0'
         ans = self.io(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
-
-        self.status = 'ready'
 
         return ans.decode().strip().split(',')
