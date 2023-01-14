@@ -28,13 +28,13 @@ $( document ).ready(function() {
     })
 
 
-    $('#sm_laser').change(function() {
-
+    $('#sm_set_meters_btn').click(function() {
+        single_measure.set_meters()
     })
 
     $(single_measure.wavelen_input).change(function() {single_measure.validate_wavelen()})
     $(single_measure.power_input).change(function() {single_measure.validate_power()})
-    $(single_measure.emitter_select).change(function() {single_measure.set_emitter()})
+    $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
 
 });
 
@@ -134,7 +134,7 @@ let home_panel_handler = {
             $(btn_selector).prop('mode', 'connect');
             $(btn_selector).prop('disabled', false);
             that.waiting_connection_devices = that.waiting_connection_devices.push(device_name)
-
+            
             single_measure.nest_emitters();
             single_measure.nest_trees();
         } else if (status === 'error') {
@@ -407,10 +407,11 @@ class Measure {
         this.wavelen_input = null
         this.wavelen_alert = null
         this.wavelen_start_input = null
+        this.wavelen_start_alert = null
         this.wavelen_stop_input = null
+        this.wavelen_stop_alert = null
         this.power_input = null
         this.power_alert = null
-
         this.plot = null
     }
 
@@ -423,7 +424,7 @@ class Measure {
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_alert).show();
             $(this.wavelen_alert).append('Указана недопустимая длина волны')
-        } else {
+        } else {            
             $(this.wavelen_alert).hide();
             $(this.wavelen_alert).empty()
         }
@@ -434,9 +435,31 @@ class Measure {
         if (val < this.power_min || val > this.power_max) {
             $(this.power_alert).show();
             $(this.power_alert).append('Указана недопустимая мощность')
-        } else {
+        } else {            
             $(this.power_alert).hide();
             $(this.power_alert).empty()
+        }
+    }
+
+    validate_wavelen_start() {
+        let val = $(this.power_iwavelen_start_inputnput).val();
+        if (val < this.wavelen_min || val > this.wavelen_max) {
+            $(this.wavelen_start_alert).show();
+            $(this.wavelen_start_alert).append('Указана недопустимая мощность')
+        } else {            
+            $(this.wavelen_start_alert).hide();
+            $(this.wavelen_start_alert).empty()
+        }
+    }
+
+    validate_wavelen_stop() {
+        let val = $(this.wavelen_stop_input).val();
+        if (val < this.wavelen_min || val > this.wavelen_max) {
+            $(this.wavelen_stop_alert).show();
+            $(this.wavelen_stop_alert).append('Указана недопустимая мощность')
+        } else {            
+            $(this.wavelen_stop_alert).hide();
+            $(this.wavelen_stop_alert).empty()
         }
     }
 
@@ -452,6 +475,7 @@ class Measure {
             }
             $(this.emitter_select).append($(option))
         }
+        $(this.emitter_select).change();
     }
 
     nest_trees() {
@@ -482,17 +506,24 @@ class Measure {
         $(this.metters_tree).jstree(true).refresh();
     }
 
-    set_meters(labels) {
-        this.meters = labels;
+    set_meters() {
+        let selected = $(this.metters_tree).jstree("get_selected", true);
+        for (let record of selected) {
+            if (record.parent === '#') {
+                continue
+            }
+            let arr = record.id.split('__');
+            this.meters.push({'device': arr[1], 'channel': arr[3]})
+        }
         eel.set_meters(this.analysis_name, this.meters)()
     }
 
     set_emitter() {
         this.emitter = $(this.emitter_select).val();
-        if (val === '') {
+        if (this.emitter === '') {
             return
         }
-        eel.set_meters(this.analysis_name, this.emitter)()
+        eel.set_emitter(this.analysis_name, this.emitter)()
     }
 
     set_wavelen(wavelen) {
@@ -535,7 +566,6 @@ class SingleMeasure extends Measure {
       this.wavelen_alert = '#sm_wavelen_alert'
       this.power_input = '#sm_power'
       this.power_alert = '#sm_power_alert'
-      this.plot = '#single_meas_plot'
     }
 
   }

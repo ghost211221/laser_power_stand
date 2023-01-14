@@ -22,7 +22,8 @@ def set_emitter(analysis_name, device_label):
     return {'status': 'success', 'message': ''}
 
 @eel.expose
-def set_meters(analysis_name, devices_labels):
+def set_meters(analysis_name, devices_recs):
+    devices_labels = set([i['device'] for i in devices_recs])
     if not analysis_name or not devices_labels:
         return {'status': 'fail', 'message': 'no devices or analysis'}
 

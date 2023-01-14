@@ -7,6 +7,7 @@ from threading import Thread
 import eel
 
 from  middle.devices_views import *
+from  middle.analyses_views import *
 from  middle.log_views import *
 
 from analyzes.single_meas import SingleMeas
