@@ -24,14 +24,15 @@
                         <div class="row p-1">
                             <div class="col">
                                 <div class="input-group">
-                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <input type="number" class="form-control" id="sm_wavelen" aria-label="Wavelen in nm" min="1527.6" max="1568.6">
                                     <div class="input-group-append">
                                         <span class="input-group-text">нм</span>
                                     </div>
                                 </div>
+                                <div class="alert alert-danger" role="alert" id="sm_wavelen_alert" style="display: none"></div>
                                 <span>Допустимый диапазон: <br>
-                                    От: мВт<br>
-                                    До: мВт
+                                    От: 1527.6 нм<br>
+                                    До: 1568.6 нм
                                 </span>
                             </div>
                         </div>
@@ -42,14 +43,15 @@
                         <div class="row p-1">
                             <div class="col">
                                 <div class="input-group">
-                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <input type="number" class="form-control" id="sm_power" aria-label="Wavelen in nm" min="7.58" max="56.23">
                                     <div class="input-group-append">
                                         <span class="input-group-text">мВт</span>
                                     </div>
                                 </div>
+                                <div class="alert alert-danger" role="alert" id="sm_power_alert" style="display: none"></div>
                                 <span>Допустимый диапазон: <br>
-                                    От: мВт<br>
-                                    До: мВт
+                                    От: 7.58 мВт<br>
+                                    До: 56.23 мВт
                                 </span>
                             </div>
                         </div>

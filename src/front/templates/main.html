@@ -104,6 +104,17 @@
     </script>
 
     <script>
+        $(function() {
+            $('#jstree_sm').jstree(
+            {
+                'core': {'data': []},
+                "checkbox": {
+                    "keep_selected_style" : false
+                },
+                "plugins": [ "wholerow", "checkbox" ]
+            }
+        ); 
+        })
         // $(function () { $('#jstree_scan').jstree(); });
     </script>
 </body>

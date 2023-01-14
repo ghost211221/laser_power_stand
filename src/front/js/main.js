@@ -32,6 +32,9 @@ $( document ).ready(function() {
 
     })
 
+    $(single_measure.wavelen_input).change(function() {single_measure.validate_wavelen()})
+    $(single_measure.power_input).change(function() {single_measure.validate_power()})
+
 });
 
 eel.expose(set_device_status);
@@ -126,12 +129,13 @@ let home_panel_handler = {
 
         if (status === 'init') {
             $(lamp).addClass('lamp-init');
-            if (that.waiting_connection_devices.includes(device_name)) {
-                $(btn_selector).text('Подключиться');
-                $(btn_selector).prop('mode', 'connect');
-                $(btn_selector).prop('disabled', false);
-                that.waiting_connection_devices = that.waiting_connection_devices.filter(function(e) { return e !== device_name })
-            }
+            $(btn_selector).text('Подключиться');
+            $(btn_selector).prop('mode', 'connect');
+            $(btn_selector).prop('disabled', false);
+            that.waiting_connection_devices = that.waiting_connection_devices.push(device_name)
+            
+            single_measure.nest_emitters();
+            single_measure.nest_trees();
         } else if (status === 'error') {
             $(lamp).addClass('lamp-error');
             let btn_selector = `#connect__${device_name}`;
@@ -389,22 +393,44 @@ class Measure {
         this.meters = []
         this.analysis_name = null
         this.wavelen = null
-        this.wavelen_min = null
-        this.wavelen_max = null
+        this.wavelen_min = 1527.6
+        this.wavelen_max = 1568.6
         this.power = null
+        this.power_min = 7.58
+        this.power_max = 56.23
 
         this.emitter_select = null
         this.metters_tree = null
         this.tree_data = []
-        $(this.metters_tree).jstree(
-            {
-                'core': {'data': this.tree_data},
-                "checkbox": {
-                    "keep_selected_style" : false
-                },
-                "plugins": [ "wholerow", "checkbox" ]
-            }
-        ); 
+
+        this.wavelen_input = null
+        this.wavelen_alert = null
+        this.wavelen_start_input = null
+        this.wavelen_stop_input = null
+        this.power_input = null
+        this.power_alert = null
+    }
+
+    validate_wavelen() {
+        let val = $(this.wavelen_input).val();
+        if (val < this.wavelen_min || val > this.wavelen_max) {
+            $(this.wavelen_alert).show();
+            $(this.wavelen_alert).append('Указана недопустимая длина волны')
+        } else {            
+            $(this.wavelen_alert).hide();
+            $(this.wavelen_alert).empty()
+        }
+    }
+
+    validate_power() {
+        let val = $(this.power_input).val();
+        if (val < this.power_min || val > this.power_max) {
+            $(this.power_alert).show();
+            $(this.power_alert).append('Указана недопустимая мощность')
+        } else {            
+            $(this.power_alert).hide();
+            $(this.power_alert).empty()
+        }
     }
 
     nest_emitters() {
@@ -424,7 +450,7 @@ class Measure {
     nest_trees() {
         this.tree_data = [];
         for (let device of home_panel_handler.added_devices) {
-            if (device.type !== 'power_meter') {
+            if (device.type !== 'power_meter' || !device.connected) {
                 continue
             }
             let children = [];
@@ -496,6 +522,10 @@ class SingleMeasure extends Measure {
       this.analysis_name = 'single_meas';
       this.emitter_select = '#sm_laser'
       this.metters_tree = '#jstree_sm'
+      this.wavelen_input = '#sm_wavelen'
+      this.wavelen_alert = '#sm_wavelen_alert'
+      this.power_input = '#sm_power'
+      this.power_alert = '#sm_power_alert'
     }
 
   }
