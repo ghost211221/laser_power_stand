@@ -134,7 +134,7 @@ let home_panel_handler = {
             $(btn_selector).prop('mode', 'connect');
             $(btn_selector).prop('disabled', false);
             that.waiting_connection_devices = that.waiting_connection_devices.push(device_name)
-            
+
             single_measure.nest_emitters();
             single_measure.nest_trees();
         } else if (status === 'error') {
@@ -410,6 +410,12 @@ class Measure {
         this.wavelen_stop_input = null
         this.power_input = null
         this.power_alert = null
+
+        this.plot = null
+    }
+
+    init_plot() {
+
     }
 
     validate_wavelen() {
@@ -417,7 +423,7 @@ class Measure {
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_alert).show();
             $(this.wavelen_alert).append('Указана недопустимая длина волны')
-        } else {            
+        } else {
             $(this.wavelen_alert).hide();
             $(this.wavelen_alert).empty()
         }
@@ -428,7 +434,7 @@ class Measure {
         if (val < this.power_min || val > this.power_max) {
             $(this.power_alert).show();
             $(this.power_alert).append('Указана недопустимая мощность')
-        } else {            
+        } else {
             $(this.power_alert).hide();
             $(this.power_alert).empty()
         }
@@ -529,6 +535,7 @@ class SingleMeasure extends Measure {
       this.wavelen_alert = '#sm_wavelen_alert'
       this.power_input = '#sm_power'
       this.power_alert = '#sm_power_alert'
+      this.plot = '#single_meas_plot'
     }
 
   }
