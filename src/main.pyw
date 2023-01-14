@@ -57,6 +57,7 @@ def main():
     init_entities(connections_path, 'connection_type', 'connections_classes')
     # prepare devices classes
     init_entities('src.devices', 'dev_name', 'devices_classes')
+    init_analyses()
 
     eel.init('src/front', allowed_extensions=['.js', '.html'],)
 

@@ -10,15 +10,12 @@ class AbstractAnalyze(metaclass=ABCMeta):
     power = None
     traces = []
 
-    @abstractmethod
     def set_wavelen(self, value):
         pass
 
-    @abstractmethod
     def set_wavelen_range(self, wavelen_min, wavelen_max):
         pass
 
-    @abstractmethod
     def set_power(self, value):
         pass
 

@@ -14,3 +14,9 @@ class SingleMeas(AbstractAnalyze):
 
     def __init__(self) -> None:
         super().__init__()
+
+    def run(self):
+        pass
+
+    def stop(self):
+        pass

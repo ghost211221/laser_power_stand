@@ -34,6 +34,7 @@ $( document ).ready(function() {
 
     $(single_measure.wavelen_input).change(function() {single_measure.validate_wavelen()})
     $(single_measure.power_input).change(function() {single_measure.validate_power()})
+    $(single_measure.emitter_select).change(function() {single_measure.set_emitter()})
 
 });
 
@@ -471,7 +472,6 @@ class Measure {
             this.tree_data.push(subdata)
         }
 
-        // $(this.metters_tree).data('jstree', false).empty().jstree(data);
         $(this.metters_tree).jstree(true).settings.core.data = this.tree_data;
         $(this.metters_tree).jstree(true).refresh();
     }
@@ -481,8 +481,11 @@ class Measure {
         eel.set_meters(this.analysis_name, this.meters)()
     }
 
-    set_emitter(label) {
-        this.emitter = label;
+    set_emitter() {
+        this.emitter = $(this.emitter_select).val();
+        if (val === '') {
+            return
+        }
         eel.set_meters(this.analysis_name, this.emitter)()
     }
 
