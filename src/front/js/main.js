@@ -38,11 +38,26 @@ $( document ).ready(function() {
     $(single_measure.wavelen_input).change(function() {single_measure.set_wavelen() })
     $(single_measure.power_input).change(function() {single_measure.set_power() })
 
+    single_measure.init_plot();
+    single_measure.init_jstree();
+
+
+    // bind run analysis start buttons
+    $(single_measure.run_control_btn).click(function() {
+        single_measure.run_analysis();
+    })
 });
 
 eel.expose(set_device_status);
 function set_device_status(device, status) {
     home_panel_handler.set_device_status(device, status);
+}
+
+eel.expose(show_traces);
+function show_traces(analysis_type, traces) {
+    if (analysis_type === 'single_meas') {
+        single_measure.update_traces(traces)
+    }
 }
 
 
@@ -136,7 +151,7 @@ let home_panel_handler = {
             $(btn_selector).prop('mode', 'connect');
             $(btn_selector).prop('disabled', false);
             that.waiting_connection_devices = that.waiting_connection_devices.push(device_name)
-            
+
             single_measure.nest_emitters();
             single_measure.nest_trees();
         } else if (status === 'error') {
@@ -395,6 +410,7 @@ class Measure {
         this.emitter = null
         this.meters = []
         this.analysis_name = null
+
         this.wavelen = null
         this.wavelen_min = 1527.6
         this.wavelen_max = 1568.6
@@ -404,6 +420,7 @@ class Measure {
 
         this.emitter_select = null
         this.metters_tree = null
+        this.meters_modal = null
         this.tree_data = []
 
         this.wavelen_input = null
@@ -415,11 +432,70 @@ class Measure {
         this.power_input = null
         this.power_alert = null
         this.plot = null
+        this.plot_selector = null
+
+        this.plot_name = null
+        this.layout = null
         this.traces = []
+
+        this.run_control_btn = null
     }
 
     init_plot() {
+        // Define Layout
+        this.layout = {
+            title: this.plot_name,
+            autosize: false,
+            width: 813,
+            height: 683,
+            xaxis: {
+                title: {
+                    text: 'Длина волны, нм'
+                },
+                range: [1527, 1570],
+                autorange: true
+            },
+            yaxis: {
+                title: {
+                    text: 'Мощность, дБм'
+                },
+                range: [8.5, 18],
+                autorange: true
+            },
+        };
 
+        // Display using Plotly
+        this.plot = Plotly.newPlot(this.plot_selector, this.traces, this.layout);
+    }
+
+    update_traces(traces) {
+        this.traces = []
+        for (let meter of this.meters) {
+            let trace_id = `${meter.device}__${meter.channel}`;
+            for (let trace of traces) {
+                if (trace_id === trace.id) {
+                    this.traces.push({
+                        type: 'line',
+                        x: trace.x,
+                        y: trace.y,
+                        name: trace.title
+                    });
+                }
+            }
+        }
+        Plotly.react(this.plot_selector, this.traces, this.layout)
+    }
+
+    init_jstree() {
+        $(this.metters_tree).jstree(
+            {
+                'core': {'data': []},
+                "checkbox": {
+                    "keep_selected_style" : false
+                },
+                "plugins": [ "wholerow", "checkbox" ]
+            }
+        );
     }
 
     validate_wavelen() {
@@ -427,7 +503,7 @@ class Measure {
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_alert).show();
             $(this.wavelen_alert).append('Указана недопустимая длина волны')
-        } else {            
+        } else {
             $(this.wavelen_alert).hide();
             $(this.wavelen_alert).empty()
         }
@@ -438,7 +514,7 @@ class Measure {
         if (val < this.power_min || val > this.power_max) {
             $(this.power_alert).show();
             $(this.power_alert).append('Указана недопустимая мощность')
-        } else {            
+        } else {
             $(this.power_alert).hide();
             $(this.power_alert).empty()
         }
@@ -449,7 +525,7 @@ class Measure {
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_start_alert).show();
             $(this.wavelen_start_alert).append('Указана недопустимая мощность')
-        } else {            
+        } else {
             $(this.wavelen_start_alert).hide();
             $(this.wavelen_start_alert).empty()
         }
@@ -460,7 +536,7 @@ class Measure {
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_stop_alert).show();
             $(this.wavelen_stop_alert).append('Указана недопустимая мощность')
-        } else {            
+        } else {
             $(this.wavelen_stop_alert).hide();
             $(this.wavelen_stop_alert).empty()
         }
@@ -519,6 +595,7 @@ class Measure {
             this.meters.push({'device': arr[1], 'channel': arr[3]})
         }
         eel.set_meters(this.analysis_name, this.meters)()
+        $(this.meters_modal).modal('hide');
     }
 
     set_emitter() {
@@ -576,6 +653,10 @@ class SingleMeasure extends Measure {
       this.wavelen_alert = '#sm_wavelen_alert'
       this.power_input = '#sm_power'
       this.power_alert = '#sm_power_alert'
+      this.plot_selector = 'single_meas_plot'
+      this.plot_name = 'Разовое измерение'
+      this.run_control_btn = '#sm_start_meas'
+      this.meters_modal = '#sm_devices_modal'
     }
 
   }

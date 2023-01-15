@@ -2,6 +2,8 @@ import math
 
 import serial.tools.list_ports
 
+import eel
+
 from core.context import Context
 
 context = Context()
@@ -61,3 +63,18 @@ def get_device_by_label(label):
 
 def get_analyses():
     return context.analyses
+
+def plot_traces(analysis_type, traces):
+    data = [
+    ]
+    for trace in traces:
+        temp = dict(sorted(trace.get('data', {}).items()))
+        data.append(
+            {
+                'id': trace.get('id'),
+                'title': trace.get('title'),
+                'x': list(temp.keys()),
+                'y': list(temp.values())
+            }
+        )
+    eel.show_traces(analysis_type, data)

@@ -1,6 +1,10 @@
 from abc import ABCMeta, abstractmethod
 
 
+class Replace():
+    pass
+
+
 class AbstractAnalyze(metaclass=ABCMeta):
     analyse_name = ''
     emitter = None  # laser or wideband oscilator
@@ -28,18 +32,38 @@ class AbstractAnalyze(metaclass=ABCMeta):
         self.power = value
         self.set_power.set_wavelen(self.power)
 
-    def gen_traces(self):
-        self.traces = []
-        for meter in self.meters:
-            for ch in meter.chanels:
-                self.traces.append({
-                    'id': f'{meter.label}__{ch}',
-                    'title': f'{meter.label} {ch+1}',
-                    'x': [],
-                    'y': []
-                })
+    def add_device_traces(self, device):
+        if device.dev_type != 'power_meter':
+            return
 
-        
+        for ch in range(device.chanels):
+            self.traces.append({
+                'id': f'{device.label}__{ch}',
+                'title': f'{device.label} {ch+1}',
+                'data': {
+
+                }
+            })
+
+    def delete_traces(self, device):
+        if device.dev_type != 'power_meter':
+            return
+
+        for ch in range(device.chanels):
+            trace_id = f'{device.label}__{ch}'
+            for i, trace in enumerate(self.traces):
+                if trace.get('id') == trace_id:
+                    self.traces[i] = Replace()
+
+        self.traces = filter(lambda t: not isinstance(Replace), self.traces)
+
+    def add_values_to_trace(self, trace_id, x, y):
+        for trace in self.traces:
+            if trace.get('id') == trace_id:
+                trace['data'][x] = y
+                return
+
+        raise Exception(f'trace {trace_id} not found!')
 
     @property
     def can_run(self):

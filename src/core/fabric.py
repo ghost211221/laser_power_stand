@@ -58,3 +58,4 @@ def add_device(device_name, device_type, device_model, device_connection_type, d
             device.set_connection(device_connection_type)
             device.set_addr(device_addr)
             context.devices.append(device)
+            return device

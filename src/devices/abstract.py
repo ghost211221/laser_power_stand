@@ -84,6 +84,10 @@ class AbstractDevice(metaclass=ABCMeta):
     def init(self):
         pass
 
+    @process_status
+    def set_power(self, value):
+        pass
+
     @property
     def labels(self):
         """labels for showing line names in plots"""

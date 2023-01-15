@@ -47,8 +47,9 @@ def e_add_new_device(device_name, device_type, device_model, device_connection_t
         return {'status': 'fail', 'message': 'Неизвестный тип подключения: {device_connection_type}'}
 
     try:
-        add_device(device_name, device_type, device_model, connection_type, device_addr)
-
+        device = add_device(device_name, device_type, device_model, connection_type, device_addr)
+        for analysis in context.analyses:
+            analysis.add_device_traces(device)
         return {'status': 'success'}
     except Exception as e:
         print(e)
@@ -124,6 +125,8 @@ def e_delete_device(dev_name):
     try:
         for device in context.devices:
             if dev_name == device.label:
+                for analysis in context.analyses:
+                    analysis.delete_traces(device)
                 del context.devices[context.devices.index(device)]
     except Exception as e:
         msg = f'Не удалось удалить прибор: {e}'
