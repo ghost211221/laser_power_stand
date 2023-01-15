@@ -1,6 +1,5 @@
 from abc import ABCMeta, abstractmethod
 
-from core.utils import get_device_by_label
 
 class AbstractAnalyze(metaclass=ABCMeta):
     analyse_name = ''
@@ -27,6 +26,20 @@ class AbstractAnalyze(metaclass=ABCMeta):
 
     def set_power(self, value):
         self.power = value
+        self.set_power.set_wavelen(self.power)
+
+    def gen_traces(self):
+        self.traces = []
+        for meter in self.meters:
+            for ch in meter.chanels:
+                self.traces.append({
+                    'id': f'{meter.label}__{ch}',
+                    'title': f'{meter.label} {ch+1}',
+                    'x': [],
+                    'y': []
+                })
+
+        
 
     @property
     def can_run(self):

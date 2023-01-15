@@ -35,6 +35,8 @@ $( document ).ready(function() {
     $(single_measure.wavelen_input).change(function() {single_measure.validate_wavelen()})
     $(single_measure.power_input).change(function() {single_measure.validate_power()})
     $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
+    $(single_measure.wavelen_input).change(function() {single_measure.set_wavelen() })
+    $(single_measure.power_input).change(function() {single_measure.set_power() })
 
 });
 
@@ -413,6 +415,7 @@ class Measure {
         this.power_input = null
         this.power_alert = null
         this.plot = null
+        this.traces = []
     }
 
     init_plot() {
@@ -527,6 +530,9 @@ class Measure {
     }
 
     set_wavelen(wavelen) {
+        if (!this.validate_wavelen()) {
+            return
+        }
         this.wavelen = wavelen;
         eel.set_meters(this.analysis_name, this.wavelen)()
     }
@@ -538,11 +544,15 @@ class Measure {
     }
 
     set_power(power) {
+        if (!this.validate_power()) {
+            return
+        }
         this.power = power;
         eel.set_power(this.analysis_name, this.power)()
     }
 
     clear_traces() {
+        this.traces = []
         eel.clear_traces(this.analysis_name)()
     }
 

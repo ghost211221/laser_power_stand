@@ -1,3 +1,5 @@
+from itertools import chain
+
 from src.analyzes.abstract import AbstractAnalyze
 
 class SingleMeas(AbstractAnalyze):
@@ -16,7 +18,16 @@ class SingleMeas(AbstractAnalyze):
         super().__init__()
 
     def run(self):
-        pass
+        for device in chain(self.emitter, self.meters):
+            device.set_wavelen(self.wavelen)
+
+        for device in chain(self.emitter, self.meters):
+            device.set_power(self.power)
+
+        results = []
+        for meter in self.meters:
+            res = meter.get_power()
+            results.append({'device': device.label, 'res': res, 'wavelen': self.wavelen})
 
     def stop(self):
         pass
