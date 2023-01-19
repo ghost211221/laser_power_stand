@@ -30,7 +30,6 @@ class AbstractAnalyze(metaclass=ABCMeta):
 
     def set_power(self, value):
         self.power = value
-        self.set_power.set_wavelen(self.power)
 
     def add_device_traces(self, device):
         if device.dev_type != 'power_meter':
@@ -78,7 +77,8 @@ class AbstractAnalyze(metaclass=ABCMeta):
         pass
 
     def clear_traces(self):
-        self.traces = []
+        for trace in self.traces:
+            trace['data'] = {}
 
     def set_meters(self, devices):
         self.meters = devices

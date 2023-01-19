@@ -34,8 +34,7 @@ class SingleMeas(AbstractAnalyze):
 
             for ch, r in enumerate(res):
                 trace_id = f'{meter.label}__{ch}'
-                self.add_values_to_trace(trace_id, self.wavelen, r)
-
+                self.add_values_to_trace(trace_id, float(self.wavelen), float(r))
 
     def stop(self):
         pass

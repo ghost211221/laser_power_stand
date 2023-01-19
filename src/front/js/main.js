@@ -32,11 +32,19 @@ $( document ).ready(function() {
         single_measure.set_meters()
     })
 
-    $(single_measure.wavelen_input).change(function() {single_measure.validate_wavelen()})
-    $(single_measure.power_input).change(function() {single_measure.validate_power()})
+    $(single_measure.wavelen_input).change(function() {
+        let res = single_measure.validate_wavelen();
+        if (res) {
+            single_measure.set_wavelen($(single_measure.wavelen_input).val());
+        }
+    })
+    $(single_measure.power_input).change(function() {
+        let res = single_measure.validate_power();
+        if (res) {
+            single_measure.set_power($(single_measure.power_input).val());
+        }
+    });
     $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
-    $(single_measure.wavelen_input).change(function() {single_measure.set_wavelen() })
-    $(single_measure.power_input).change(function() {single_measure.set_power() })
 
     single_measure.init_plot();
     single_measure.init_jstree();
@@ -45,6 +53,9 @@ $( document ).ready(function() {
     // bind run analysis start buttons
     $(single_measure.run_control_btn).click(function() {
         single_measure.run_analysis();
+    })
+    $(single_measure.clear_traces_btn).click(function() {
+        single_measure.clear_traces();
     })
 });
 
@@ -151,7 +162,7 @@ let home_panel_handler = {
             $(btn_selector).prop('mode', 'connect');
             $(btn_selector).prop('disabled', false);
             that.waiting_connection_devices = that.waiting_connection_devices.push(device_name)
-
+            
             single_measure.nest_emitters();
             single_measure.nest_trees();
         } else if (status === 'error') {
@@ -439,6 +450,7 @@ class Measure {
         this.traces = []
 
         this.run_control_btn = null
+        this.clear_traces_btn = null
     }
 
     init_plot() {
@@ -466,6 +478,7 @@ class Measure {
 
         // Display using Plotly
         this.plot = Plotly.newPlot(this.plot_selector, this.traces, this.layout);
+        // eel.get_traces()
     }
 
     update_traces(traces) {
@@ -503,10 +516,12 @@ class Measure {
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_alert).show();
             $(this.wavelen_alert).append('Указана недопустимая длина волны')
-        } else {
+        } else {            
             $(this.wavelen_alert).hide();
             $(this.wavelen_alert).empty()
         }
+
+        return val <= this.wavelen_max && val >= this.wavelen_min
     }
 
     validate_power() {
@@ -514,10 +529,12 @@ class Measure {
         if (val < this.power_min || val > this.power_max) {
             $(this.power_alert).show();
             $(this.power_alert).append('Указана недопустимая мощность')
-        } else {
+        } else {            
             $(this.power_alert).hide();
             $(this.power_alert).empty()
         }
+
+        return val <= this.power_max && val >= this.power_min
     }
 
     validate_wavelen_start() {
@@ -525,7 +542,7 @@ class Measure {
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_start_alert).show();
             $(this.wavelen_start_alert).append('Указана недопустимая мощность')
-        } else {
+        } else {            
             $(this.wavelen_start_alert).hide();
             $(this.wavelen_start_alert).empty()
         }
@@ -536,7 +553,7 @@ class Measure {
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_stop_alert).show();
             $(this.wavelen_stop_alert).append('Указана недопустимая мощность')
-        } else {
+        } else {            
             $(this.wavelen_stop_alert).hide();
             $(this.wavelen_stop_alert).empty()
         }
@@ -581,11 +598,27 @@ class Measure {
             this.tree_data.push(subdata)
         }
 
+        for (let node of this.tree_data) {
+            for (let device of this.meters) {
+                if (node.id == `${device.device}`) {
+                    node.state.checked = true;
+                }
+            }
+            for (let child of node.children) {                             
+                for (let device of this.meters) {   
+                    if (child.id == `${device.device}__${device.chanel}`) {
+                        node.state.checked = true;
+                    }
+                }
+            }
+        }
+
         $(this.metters_tree).jstree(true).settings.core.data = this.tree_data;
         $(this.metters_tree).jstree(true).refresh();
     }
 
     set_meters() {
+        this.metes = [];
         let selected = $(this.metters_tree).jstree("get_selected", true);
         for (let record of selected) {
             if (record.parent === '#') {
@@ -611,7 +644,7 @@ class Measure {
             return
         }
         this.wavelen = wavelen;
-        eel.set_meters(this.analysis_name, this.wavelen)()
+        eel.set_wavelen(this.analysis_name, this.wavelen)()
     }
 
     set_wavelen_range(wavelen_min, wavelen_max) {
@@ -629,7 +662,7 @@ class Measure {
     }
 
     clear_traces() {
-        this.traces = []
+        this.update_traces([])
         eel.clear_traces(this.analysis_name)()
     }
 
@@ -657,6 +690,7 @@ class SingleMeasure extends Measure {
       this.plot_name = 'Разовое измерение'
       this.run_control_btn = '#sm_start_meas'
       this.meters_modal = '#sm_devices_modal'
+      this.clear_traces_btn = '#sm_clear_traces'
     }
 
   }
