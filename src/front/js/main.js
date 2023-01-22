@@ -92,6 +92,11 @@ function show_cont_data(analysis_type, data) {
 }
 
 
+function dBm_to_mWt(dBm) {
+    return 10 ** (dBm / 10)
+}
+
+
 let home_panel_handler = {
     no_device_submit_errors: null,
     added_devices: [],
@@ -778,11 +783,10 @@ class ContMeasure extends Measure {
                                 <div class="input-group input-group-sm">
                                     <input type="number" class="form-control" id="cm__${device.label}__${ch-1}__label" value="0">
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">мВт</button>
-                                        <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#">мВт</a>
-                                        <a class="dropdown-item" href="#">dBm</a>
-                                        </div>
+                                        <select class="btn btn-dark dropdown-toggle" id="cm__${device.label}__${ch-1}__unit" style="padding-left: 0px; padding-right: 0px; width: 55px;">
+                                            <option value="mWt">мВт</option >
+                                            <option valuse="dBm" selected>dBm</option >
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -792,6 +796,7 @@ class ContMeasure extends Measure {
                     for (let meter of this.meters) {
                         if (meter.device === device.label && meter.channel == ch-1) {
                             $(`#cm__${device.label}__${ch-1}`).prop("checked", true);
+                            $(`#cm__${device.label}__${ch-1}__unit`).val(meter.unit);
                         }
                     }
                 }
@@ -802,7 +807,12 @@ class ContMeasure extends Measure {
                     let device = arr[0];
                     let ch = arr[1];
                     if (meter_rec.device === device && meter_rec.channel == ch) {
-                        $(`#cm__${device}__${ch}__label`).val(res.val);
+                        let mode = $(`#cm__${device}__${ch}__unit`).val()
+                        let val_to_show = res.val;
+                        if (mode === 'mWt') {
+                            val_to_show = dBm_to_mWt(val_to_show);
+                        }
+                        $(`#cm__${device}__${ch}__label`).val(val_to_show);
                     }
                 }
             }         
@@ -819,7 +829,8 @@ class ContMeasure extends Measure {
         $(this.meters_class).each(function() {
             if ($(this).prop('checked')) {
                 let arr = $(this).attr('id').split('__');
-                that.meters.push({'device': arr[1], 'channel': arr[2]})
+                let unit = $(`#cm__${arr[1]}__${arr[2]}__unit`).val()
+                that.meters.push({'device': arr[1], 'channel': arr[2], 'unit': unit})
             }
         })
         eel.set_meters(this.analysis_name, this.meters)()
@@ -830,7 +841,11 @@ class ContMeasure extends Measure {
         return this.can_run
     }
 
-    async run_analysis() {        
+    async run_analysis() {
+        if (this.meters.length === 0) {
+            alert('Не выбран ни один прибор для анализа');
+            return
+        }
         this.can_run = true;
         $(this.run_control_btn).attr('mode', 'stop');
         $(this.run_control_btn).text('Остановить');
