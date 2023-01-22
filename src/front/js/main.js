@@ -749,6 +749,7 @@ class ContMeasure extends Measure {
       this.run_control_btn = '#cm_start_meas'
       this.results = []
       this.can_run = false
+      this.units_class = '.cm_units'
     }
 
     render_devices () {
@@ -783,7 +784,7 @@ class ContMeasure extends Measure {
                                 <div class="input-group input-group-sm">
                                     <input type="number" class="form-control" id="cm__${device.label}__${ch-1}__label" value="0">
                                     <div class="input-group-append">
-                                        <select class="btn btn-dark dropdown-toggle" id="cm__${device.label}__${ch-1}__unit" style="padding-left: 0px; padding-right: 0px; width: 55px;">
+                                        <select class="btn btn-dark dropdown-toggle cm_units" device="${device.label}" ch="${ch-1}" id="cm__${device.label}__${ch-1}__unit" style="padding-left: 0px; padding-right: 0px; width: 55px;">
                                             <option value="mWt">мВт</option >
                                             <option valuse="dBm" selected>dBm</option >
                                         </select>
@@ -801,21 +802,7 @@ class ContMeasure extends Measure {
                     }
                 }
             }
-            for (let res of this.results) {
-                for (let meter_rec of this.meters) {
-                    let arr = res.id.split('__');
-                    let device = arr[0];
-                    let ch = arr[1];
-                    if (meter_rec.device === device && meter_rec.channel == ch) {
-                        let mode = $(`#cm__${device}__${ch}__unit`).val()
-                        let val_to_show = res.val;
-                        if (mode === 'mWt') {
-                            val_to_show = dBm_to_mWt(val_to_show);
-                        }
-                        $(`#cm__${device}__${ch}__label`).val(val_to_show);
-                    }
-                }
-            }         
+            this.render_results();         
         }
         let that = this;
         $(this.meters_class).change(function() {
@@ -836,8 +823,41 @@ class ContMeasure extends Measure {
         eel.set_meters(this.analysis_name, this.meters)()
     }
 
+    set_units() {
+        $(this.units_class).each(function() {
+            let device = $(this).attr('device');
+            let ch = $(this).attr('ch');
+            let val = $(this).val();
+            for (let meter of this.meters) {
+                if (device === meter.device && ch === meter.ch) {
+                       meter.unit = val;
+                }
+            }
+        })
+    }
+
+    render_results() {
+        for (let res of this.results) {
+            for (let meter_rec of this.meters) {
+                let arr = res.id.split('__');
+                let device = arr[0];
+                let ch = arr[1];
+                if (meter_rec.device === device && meter_rec.channel == ch) {
+                    let mode = $(`#cm__${device}__${ch}__unit`).val()
+                    let val_to_show = res.val;
+                    if (mode === 'mWt') {
+                        val_to_show = dBm_to_mWt(val_to_show);
+                    }
+                    $(`#cm__${device}__${ch}__label`).val(val_to_show);
+                }
+            }
+        }
+    }
+
     update_results(data) {
         this.results = data;
+        this.render_results();
+
         return this.can_run
     }
 

@@ -21,6 +21,7 @@ class AbstractDevice(metaclass=ABCMeta):
     timeout = None
     status = 'init'
     chanels = 1
+    block_status = False
 
     valid_statuses = ['init', 'processing', 'ready', 'error']
 

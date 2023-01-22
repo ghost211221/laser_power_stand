@@ -5,6 +5,8 @@ import eel
 def process_status(fn):
     @wraps(fn)
     def wrapper(self, *args, **kwargs):
+        if getattr(self, 'block_status', False):
+            return fn(self, *args, **kwargs)
         self.set_status('processing')
         eel.set_device_status(self.label, self.status)
         try:

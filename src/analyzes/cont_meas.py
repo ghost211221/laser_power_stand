@@ -1,4 +1,5 @@
 from time import sleep
+from threading import Thread
 
 from itertools import chain
 
@@ -17,6 +18,7 @@ class ContMeas(AbstractAnalyze):
     analyse_name = 'cont_meas'
     can_run = False
     selected_meters_channels = []
+    measure_thread = None
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
@@ -26,15 +28,17 @@ class ContMeas(AbstractAnalyze):
     def __init__(self):
         super().__init__()
 
-    def run(self):
+    def make_analyse(self):
         self.can_run = True
+        for device in chain([self.emitter,], self.meters):
+            device.block_status = True
+            device.set_status('processing')
+
         while self.can_run:
             sleep(1)
             res_dict = []
             for device in chain([self.emitter,], self.meters):
                 device.set_wavelen(self.wavelen)
-
-            for device in chain([self.emitter,], self.meters):
                 device.set_power(self.power)
 
             results = []
@@ -50,6 +54,14 @@ class ContMeas(AbstractAnalyze):
                     })
 
             push_cont_data(self.analyse_name, res_dict)
+
+        for device in chain([self.emitter,], self.meters):
+            device.block_status = True
+            device.set_status('ready')
+
+    def run(self):
+        self.measure_thread = Thread(target=self.make_analyse)        
+        self.measure_thread.start()
 
     def stop(self):
         self.can_run = False
