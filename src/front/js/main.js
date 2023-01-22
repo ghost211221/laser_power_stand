@@ -45,10 +45,13 @@ $( document ).ready(function() {
         }
     });
     $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
+    $(cont_measure.emitter_select).change(function() {cont_measure.set_emitter() })
 
     single_measure.init_plot();
     single_measure.init_jstree();
 
+    cont_measure.render_devices();
+    cont_measure.stop_analysis();
 
     // bind run analysis start buttons
     $(single_measure.run_control_btn).click(function() {
@@ -57,6 +60,17 @@ $( document ).ready(function() {
     $(single_measure.clear_traces_btn).click(function() {
         single_measure.clear_traces();
     })
+    
+    $(cont_measure.run_control_btn).click(async function() {
+        if ($(this).attr('mode') === 'start') {
+            await cont_measure.run_analysis();
+        } else if ($(this).attr('mode') === 'stop') {
+            await cont_measure.stop_analysis();
+        }
+
+    })
+    
+
 });
 
 eel.expose(set_device_status);
@@ -68,6 +82,12 @@ eel.expose(show_traces);
 function show_traces(analysis_type, traces) {
     if (analysis_type === 'single_meas') {
         single_measure.update_traces(traces)
+    }
+}
+eel.expose(show_cont_data);
+function show_cont_data(analysis_type, data) {
+    if (analysis_type === 'cont_meas') {
+        return cont_measure.update_results(data)
     }
 }
 
@@ -165,6 +185,8 @@ let home_panel_handler = {
             
             single_measure.nest_emitters();
             single_measure.nest_trees();
+            cont_measure.render_devices();
+            cont_measure.nest_emitters();
         } else if (status === 'error') {
             $(lamp).addClass('lamp-error');
             let btn_selector = `#connect__${device_name}`;
@@ -180,6 +202,8 @@ let home_panel_handler = {
 
             single_measure.nest_emitters();
             single_measure.nest_trees();
+            cont_measure.render_devices();
+            cont_measure.nest_emitters();
         }
     },
 
@@ -305,9 +329,12 @@ let home_panel_handler = {
                 }
                 this.render_add_device_widget();
             }
+           
             // nest trees and emitters selects
             single_measure.nest_emitters();
             single_measure.nest_trees();
+            cont_measure.render_devices();
+            cont_measure.nest_emitters();
         });
     },
 
@@ -414,6 +441,12 @@ let home_panel_handler = {
         return messages.length === 0;
     },
 }
+
+
+let devices_scan = new CustomEvent("devices_scan", {
+    bubbles: true
+})
+
 
 class Measure {
 
@@ -618,7 +651,7 @@ class Measure {
     }
 
     set_meters() {
-        this.metes = [];
+        this.meters = [];
         let selected = $(this.metters_tree).jstree("get_selected", true);
         for (let record of selected) {
             if (record.parent === '#') {
@@ -667,11 +700,11 @@ class Measure {
     }
 
     run_analysis() {
-        eel.run_analysis(this.analysis_name)()
+        eel.run_analysis(this.analysis_name)();
     }
 
     stop_analysis() {
-        eel.stop_analysis(this.analysis_name)()
+        eel.stop_analysis(this.analysis_name)();
     }
 }
 
@@ -701,9 +734,125 @@ class ContMeasure extends Measure {
       super();
       this.analysis_name = 'cont_meas';
       this.emitter_select = '#cm_laser'
+      this.meters_class = '.cm_enable_cb'
+      this.devices_panel = '#cm_devices'
+      this.nodevices_panel = '#cm_no_devices'
+      this.wavelen_input = '#cm_wavelen'
+      this.wavelen_alert = '#cm_wavelen_alert'
+      this.power_input = '#cm_power'
+      this.power_alert = '#cm_power_alert'
+      this.run_control_btn = '#cm_start_meas'
+      this.results = []
+      this.can_run = false
     }
 
-  }
+    render_devices () {
+        $(this.devices_panel).empty()
+        if (home_panel_handler.added_devices.length === 0){            
+            $(this.devices_panel).hide();
+            $(this.nodevices_panel).show();
+        } else {            
+            $(this.devices_panel).show();
+            $(this.nodevices_panel).hide();
+            for (let device of home_panel_handler.added_devices) {
+                if (device.type !== 'power_meter' || !device.connected) {
+                    continue
+                }
+                for (let ch = 1; ch <= device.chanels; ch++) {
+                    let html_template = `              
+                        <div class="m-1 card text-white bg-secondary sm-3" style="max-width: 11rem; min-width: 11rem;">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between">
+                                    ${device.label}<br>
+                                    Канал ${ch}
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input cm_enable_cb" type="checkbox" value="" id="cm__${device.label}__${ch-1}">
+                                    <label class="form-check-label" for="cm__${device.label}__${ch}">
+                                        Включить
+                                    </label>
+                                </div>
+
+                                <div class="input-group input-group-sm">
+                                    <input type="number" class="form-control" id="cm__${device.label}__${ch-1}__label" value="0">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">мВт</button>
+                                        <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">мВт</a>
+                                        <a class="dropdown-item" href="#">dBm</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `
+                    $(this.devices_panel).append(html_template);
+                    for (let meter of this.meters) {
+                        if (meter.device === device.label && meter.channel == ch-1) {
+                            $(`#cm__${device.label}__${ch-1}`).prop("checked", true);
+                        }
+                    }
+                }
+            }
+            for (let res of this.results) {
+                for (let meter_rec of this.meters) {
+                    let arr = res.id.split('__');
+                    let device = arr[0];
+                    let ch = arr[1];
+                    if (meter_rec.device === device && meter_rec.channel == ch) {
+                        $(`#cm__${device}__${ch}__label`).val(res.val);
+                    }
+                }
+            }         
+        }
+        let that = this;
+        $(this.meters_class).change(function() {
+            that.set_meters();
+        })
+    }
+
+    set_meters() {
+        this.meters = [];
+        let that = this;
+        $(this.meters_class).each(function() {
+            if ($(this).prop('checked')) {
+                let arr = $(this).attr('id').split('__');
+                that.meters.push({'device': arr[1], 'channel': arr[2]})
+            }
+        })
+        eel.set_meters(this.analysis_name, this.meters)()
+    }
+
+    update_results(data) {
+        this.results = data;
+        return this.can_run
+    }
+
+    async run_analysis() {        
+        this.can_run = true;
+        $(this.run_control_btn).attr('mode', 'stop');
+        $(this.run_control_btn).text('Остановить');
+        await eel.run_analysis(this.analysis_name)().then(response => {
+            if (response.status === 'success') {
+                $('#log').append('Started continuous measure\n')
+            }
+        })
+            
+    }
+
+    async stop_analysis() {
+        this.can_run = false;
+        $(this.run_control_btn).text('Начать измерение');
+        $(this.run_control_btn).attr('mode', 'start');
+        await eel.stop_analysis(this.analysis_name)().then(response => {
+            if (response.status === 'success') {
+                $('#log').append('Stoped continuous measure\n')
+            }
+        })
+    }
+}
 
 class ScanMeasure extends Measure {
 
@@ -716,3 +865,4 @@ class ScanMeasure extends Measure {
   }
 
   const single_measure = new SingleMeasure();
+  const cont_measure = new ContMeasure();

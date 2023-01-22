@@ -78,3 +78,7 @@ def plot_traces(analysis_type, traces):
             }
         )
     eel.show_traces(analysis_type, data)
+
+def push_cont_data(analysis_type, data):
+    res = eel.show_cont_data(analysis_type, data)()
+    return res
