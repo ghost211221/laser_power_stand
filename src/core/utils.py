@@ -12,7 +12,7 @@ def get_comports_list():
     return [port.name for port in serial.tools.list_ports.comports()]
 
 def mW_to_dBm(mW):
-    return 10 * math.log10(mW)
+    return 10 * math.log10(float(mW))
 
 def dBm_to_mW(dBm):
     return 10 ** (dBm / 10)

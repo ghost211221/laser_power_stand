@@ -13,7 +13,7 @@
                         <div class="row p-1">
                             <div class="col">
                                 <select name="cm_laser" id="scm_laser" class="form-select">
-                                    <option value="ITLA5100" selected>ITLA5100</option>
+                                    <option value="" selected></option>
                                 </select>
                             </div>
                         </div>
@@ -27,32 +27,35 @@
                                     <div class="input-group-prepend col-3">
                                         <span class="input-group-text" id="basic-addon1">От</span>
                                       </div>
-                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <input type="number" class="form-control" id="scm_wavelen_start" aria-label="Wavelen in nm" value="1527.6" min="1527.6" max="1568.6">
                                     <div class="input-group-append">
                                         <span class="input-group-text">нм</span>
                                     </div>
+                                    <div class="alert alert-danger" role="alert" id="scm_wavelen_start_alert" style="display: none"></div>
                                 </div>
                                 <div class="input-group">
                                     <div class="input-group-prepend col-3">
                                         <span class="input-group-text" id="basic-addon1">До</span>
                                       </div>
-                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <input type="number" class="form-control" id="scm_wavelen_stop" aria-label="Wavelen in nm" value="1568.6" min="1527.6" max="1568.6">
                                     <div class="input-group-append">
                                         <span class="input-group-text">нм</span>
                                     </div>
+                                    <div class="alert alert-danger" role="alert" id="scm_wavelen_stop_alert" style="display: none"></div>
                                 </div>
                                 <div class="input-group">
                                     <div class="input-group-prepend col-3">
                                         <span class="input-group-text" id="basic-addon1">Шаг</span>
                                       </div>
-                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <input type="number" class="form-control" id="scm_wavelen_step" aria-label="Wavelen in nm" value="0.05" min="0.001" max="41">
                                     <div class="input-group-append">
                                         <span class="input-group-text">нм</span>
                                     </div>
+                                    <div class="alert alert-danger" role="alert" id="scm_wavelen_step_alert" style="display: none"></div>
                                 </div>
                                 <span>Допустимый диапазон: <br>
-                                    От: мВт<br>
-                                    До: мВт
+                                    От: 1527.6 нм<br>
+                                    До: 1568.6 нм
                                 </span>
                             </div>
                         </div>
@@ -63,14 +66,15 @@
                         <div class="row p-1">
                             <div class="col">
                                 <div class="input-group">
-                                    <input type="number" class="form-control" aria-label="Wavelen in nm">
+                                    <input type="number" class="form-control" id="scm_power" aria-label="Power in mWt" value="7.58" min="7.58" max="56.23">
                                     <div class="input-group-append">
                                         <span class="input-group-text">мВт</span>
                                     </div>
                                 </div>
+                                <div class="alert alert-danger" role="alert" id="scm_power_alert" style="display: none"></div>
                                 <span>Допустимый диапазон: <br>
-                                    От: мВт<br>
-                                    До: мВт
+                                    От: 7.58 мВт<br>
+                                    До: 56.23 мВт
                                 </span>
                             </div>
                         </div>
@@ -82,7 +86,7 @@
                         </div>
                     </div>
                     <div class="panel-footer">
-                        <button class="btn btn-sm btn-light ms-1">Начать измерение</button>
+                        <button class="btn btn-sm btn-light ms-1" id="scm_start_meas" mode="start">Начать измерение</button>
                     </div>
                 </div>
             </div>
@@ -92,7 +96,7 @@
                         <div id="scan_plot" style="width:100%;height:100%;"></div>
                     </div>
                     <div class="panel-footer">
-                        <button class="btn-sm btn-light ms-1">Очистить график</button>
+                        <button class="btn-sm btn-light ms-1" id="sсm_clear_traces">Очистить график</button>
                     </div>
                 </div>
 

@@ -56,7 +56,7 @@ def set_wavelen(analysis_name, wavelen):
     return {'status': 'success', 'message': ''}
 
 @eel.expose
-def set_wavelen_range(analysis_name, wavelen_min, wavelen_max):
+def set_wavelen_range(analysis_name, wavelen_min, wavelen_max, step):
     if not analysis_name or not wavelen_min or not wavelen_max:
         return {'status': 'fail', 'message': 'no wavelenghts or analysis'}
 
@@ -64,7 +64,9 @@ def set_wavelen_range(analysis_name, wavelen_min, wavelen_max):
     if not analysis:
         raise Exception(f'No analysis found: "{analysis_name}"')
 
-    analysis.set_wavelen_range(wavelen_min, wavelen_max)
+    analysis.set_wavelen_min(wavelen_min)
+    analysis.set_wavelen_max(wavelen_max)
+    analysis.set_wavelen_step(step)
 
     return {'status': 'success', 'message': ''}
 

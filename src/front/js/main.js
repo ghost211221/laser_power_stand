@@ -32,6 +32,11 @@ $( document ).ready(function() {
         single_measure.set_meters()
     })
 
+
+    $('#scm_set_meters_btn').click(function() {
+        scan_measure.set_meters()
+    })
+
     $(single_measure.wavelen_input).change(function() {
         let res = single_measure.validate_wavelen();
         if (res) {
@@ -44,14 +49,54 @@ $( document ).ready(function() {
             single_measure.set_power($(single_measure.power_input).val());
         }
     });
+
+    $(scan_measure.wavelen_start_input).change(function() {
+        let res = scan_measure.validate_wavelen_start();
+        if (res) {
+            scan_measure.set_wavelen_start($(scan_measure.wavelen_start_input).val());
+        }
+    });
+    $(scan_measure.wavelen_stop_input).change(function() {
+        let res = scan_measure.validate_wavelen_stop();
+        if (res) {
+            scan_measure.set_wavelen_stop($(scan_measure.wavelen_stop_input).val());
+        }
+    });
+    $(scan_measure.wavelen_step_input).change(function() {
+        let res = scan_measure.validate_wavelen_step();
+        if (res) {
+            scan_measure.set_wavelen_step($(scan_measure.wavelen_step_input).val());
+        }
+    });
+
+    $(cont_measure.wavelen_input).change(function() {
+        let res = cont_measure.validate_wavelen();
+        if (res) {
+            cont_measure.set_wavelen($(cont_measure.wavelen_input).val());
+        }
+    })
+    $(cont_measure.power_input).change(function() {
+        let res = cont_measure.validate_power();
+        if (res) {
+            cont_measure.set_power($(cont_measure.power_input).val());
+        }
+    });
+    $(scan_measure.power_input).change(function() {
+        let res = scan_measure.validate_power();
+        if (res) {
+            scan_measure.set_power($(scan_measure.power_input).val());
+        }
+    });
     $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
     $(cont_measure.emitter_select).change(function() {cont_measure.set_emitter() })
+    $(scan_measure.emitter_select).change(function() {scan_measure.set_emitter() })
 
     single_measure.init_plot();
     single_measure.init_jstree();
+    scan_measure.init_plot();
+    scan_measure.init_jstree();
 
     cont_measure.render_devices();
-    cont_measure.stop_analysis();
 
     // bind run analysis start buttons
     $(single_measure.run_control_btn).click(function() {
@@ -60,7 +105,17 @@ $( document ).ready(function() {
     $(single_measure.clear_traces_btn).click(function() {
         single_measure.clear_traces();
     })
-    
+    $(scan_measure.run_control_btn).click(async function() {
+        if ($(this).attr('mode') === 'start') {
+            await scan_measure.run_analysis();
+        } else if ($(this).attr('mode') === 'stop') {
+            await scan_measure.stop_analysis();
+        }
+    })
+    $(scan_measure.clear_traces_btn).click(function() {
+        scan_measure.clear_traces();
+    })
+
     $(cont_measure.run_control_btn).click(async function() {
         if ($(this).attr('mode') === 'start') {
             await cont_measure.run_analysis();
@@ -69,7 +124,7 @@ $( document ).ready(function() {
         }
 
     })
-    
+
 
 });
 
@@ -82,6 +137,8 @@ eel.expose(show_traces);
 function show_traces(analysis_type, traces) {
     if (analysis_type === 'single_meas') {
         single_measure.update_traces(traces)
+    } else if (analysis_type === 'scan_meas') {
+        scan_measure.update_traces(traces)
     }
 }
 eel.expose(show_cont_data);
@@ -187,11 +244,13 @@ let home_panel_handler = {
             $(btn_selector).prop('mode', 'connect');
             $(btn_selector).prop('disabled', false);
             that.waiting_connection_devices = that.waiting_connection_devices.push(device_name)
-            
+
             single_measure.nest_emitters();
             single_measure.nest_trees();
             cont_measure.render_devices();
             cont_measure.nest_emitters();
+            scan_measure.nest_emitters();
+            scan_measure.nest_trees();
         } else if (status === 'error') {
             $(lamp).addClass('lamp-error');
             let btn_selector = `#connect__${device_name}`;
@@ -209,6 +268,8 @@ let home_panel_handler = {
             single_measure.nest_trees();
             cont_measure.render_devices();
             cont_measure.nest_emitters();
+            scan_measure.nest_emitters();
+            scan_measure.nest_trees();
         }
     },
 
@@ -334,10 +395,12 @@ let home_panel_handler = {
                 }
                 this.render_add_device_widget();
             }
-           
+
             // nest trees and emitters selects
             single_measure.nest_emitters();
             single_measure.nest_trees();
+            scan_measure.nest_emitters();
+            scan_measure.nest_trees();
             cont_measure.render_devices();
             cont_measure.nest_emitters();
         });
@@ -461,6 +524,9 @@ class Measure {
         this.analysis_name = null
 
         this.wavelen = null
+        this.wavelen_start = 1527.6
+        this.wavelen_stop = 1568.6
+        this.wavelen_step = 0.05
         this.wavelen_min = 1527.6
         this.wavelen_max = 1568.6
         this.power = null
@@ -478,6 +544,8 @@ class Measure {
         this.wavelen_start_alert = null
         this.wavelen_stop_input = null
         this.wavelen_stop_alert = null
+        this.wavelen_step_input = null
+        this.wavelen_step_alert = null
         this.power_input = null
         this.power_alert = null
         this.plot = null
@@ -521,6 +589,10 @@ class Measure {
 
     update_traces(traces) {
         this.traces = []
+        if (this.wavelen_start !== null && this.wavelen_stop !== null) {
+            this.layout.xaxis.range = [this.wavelen_start, this.wavelen_stop]
+            this.layout.xaxis.autorange = false
+        }
         for (let meter of this.meters) {
             let trace_id = `${meter.device}__${meter.channel}`;
             for (let trace of traces) {
@@ -550,11 +622,11 @@ class Measure {
     }
 
     validate_wavelen() {
-        let val = $(this.wavelen_input).val();
+        let val = +$(this.wavelen_input).val();
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_alert).show();
             $(this.wavelen_alert).append('Указана недопустимая длина волны')
-        } else {            
+        } else {
             $(this.wavelen_alert).hide();
             $(this.wavelen_alert).empty()
         }
@@ -563,11 +635,11 @@ class Measure {
     }
 
     validate_power() {
-        let val = $(this.power_input).val();
+        let val = +$(this.power_input).val();
         if (val < this.power_min || val > this.power_max) {
             $(this.power_alert).show();
             $(this.power_alert).append('Указана недопустимая мощность')
-        } else {            
+        } else {
             $(this.power_alert).hide();
             $(this.power_alert).empty()
         }
@@ -576,25 +648,40 @@ class Measure {
     }
 
     validate_wavelen_start() {
-        let val = $(this.power_iwavelen_start_inputnput).val();
+        let val = +$(this.wavelen_start_input).val();
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_start_alert).show();
             $(this.wavelen_start_alert).append('Указана недопустимая мощность')
-        } else {            
+        } else {
             $(this.wavelen_start_alert).hide();
             $(this.wavelen_start_alert).empty()
         }
+        return val <= this.wavelen_max && val >= this.wavelen_min
     }
 
     validate_wavelen_stop() {
-        let val = $(this.wavelen_stop_input).val();
+        let val = +$(this.wavelen_stop_input).val();
         if (val < this.wavelen_min || val > this.wavelen_max) {
             $(this.wavelen_stop_alert).show();
             $(this.wavelen_stop_alert).append('Указана недопустимая мощность')
-        } else {            
+        } else {
             $(this.wavelen_stop_alert).hide();
             $(this.wavelen_stop_alert).empty()
         }
+        return val <= this.wavelen_max && val >= this.wavelen_min
+    }
+
+
+    validate_wavelen_step() {
+        let val = +$(this.wavelen_step_input).val();
+        if (val < 0.001 || val > 41) {
+            $(this.wavelen_step_alert).show();
+            $(this.wavelen_step_alert).append('Указана недопустимая мощность')
+        } else {
+            $(this.wavelen_step_alert).hide();
+            $(this.wavelen_step_alert).empty()
+        }
+        return val <= 41 && val >= 0.001
     }
 
     nest_emitters() {
@@ -642,8 +729,8 @@ class Measure {
                     node.state.checked = true;
                 }
             }
-            for (let child of node.children) {                             
-                for (let device of this.meters) {   
+            for (let child of node.children) {
+                for (let device of this.meters) {
                     if (child.id == `${device.device}__${device.chanel}`) {
                         node.state.checked = true;
                     }
@@ -685,10 +772,29 @@ class Measure {
         eel.set_wavelen(this.analysis_name, this.wavelen)()
     }
 
-    set_wavelen_range(wavelen_min, wavelen_max) {
-        this.wavelen_min = wavelen_min;
-        this.wavelen_max = wavelen_max;
-        eel.set_meters(this.analysis_name, this.wavelen_min, this.wavelen_max)()
+    set_wavelen_range() {
+        eel.set_wavelen_range(this.analysis_name, this.wavelen_start, this.wavelen_stop, this.wavelen_step)
+    }
+
+    set_wavelen_start() {
+        if (!this.validate_wavelen_start()) {
+            return
+        }
+        this.wavelen_start = +$(this.wavelen_start_input).val();
+    }
+
+    set_wavelen_stop(wavelen) {
+        if (!this.validate_wavelen_stop()) {
+            return
+        }
+        this.wavelen_stop = +$(this.wavelen_stop_input).val();
+    }
+
+    set_wavelen_step(wavelen) {
+        if (!this.validate_wavelen_step()) {
+            return
+        }
+        this.wavelen_step = +$(this.wavelen_step_input).val();
     }
 
     set_power(power) {
@@ -705,6 +811,10 @@ class Measure {
     }
 
     run_analysis() {
+        if (this.meters.length === 0) {
+            alert('Не выбран ни один прибор для анализа');
+            return
+        }
         eel.run_analysis(this.analysis_name)();
     }
 
@@ -754,10 +864,10 @@ class ContMeasure extends Measure {
 
     render_devices () {
         $(this.devices_panel).empty()
-        if (home_panel_handler.added_devices.length === 0){            
+        if (home_panel_handler.added_devices.length === 0){
             $(this.devices_panel).hide();
             $(this.nodevices_panel).show();
-        } else {            
+        } else {
             $(this.devices_panel).show();
             $(this.nodevices_panel).hide();
             for (let device of home_panel_handler.added_devices) {
@@ -765,7 +875,7 @@ class ContMeasure extends Measure {
                     continue
                 }
                 for (let ch = 1; ch <= device.chanels; ch++) {
-                    let html_template = `              
+                    let html_template = `
                         <div class="m-1 card text-white bg-secondary sm-3" style="max-width: 11rem; min-width: 11rem;">
                             <div class="card-header">
                                 <div class="d-flex justify-content-between">
@@ -802,7 +912,7 @@ class ContMeasure extends Measure {
                     }
                 }
             }
-            this.render_results();         
+            this.render_results();
         }
         let that = this;
         $(this.meters_class).change(function() {
@@ -870,11 +980,8 @@ class ContMeasure extends Measure {
         $(this.run_control_btn).attr('mode', 'stop');
         $(this.run_control_btn).text('Остановить');
         await eel.run_analysis(this.analysis_name)().then(response => {
-            if (response.status === 'success') {
-                $('#log').append('Started continuous measure\n')
-            }
         })
-            
+
     }
 
     async stop_analysis() {
@@ -882,9 +989,6 @@ class ContMeasure extends Measure {
         $(this.run_control_btn).text('Начать измерение');
         $(this.run_control_btn).attr('mode', 'start');
         await eel.stop_analysis(this.analysis_name)().then(response => {
-            if (response.status === 'success') {
-                $('#log').append('Stoped continuous measure\n')
-            }
         })
     }
 }
@@ -892,12 +996,53 @@ class ContMeasure extends Measure {
 class ScanMeasure extends Measure {
 
     constructor() {
-      super();
-      this.analysis_name = 'scan_meas';
-      this.emitter_select = '#scm_laser'
+        super();
+        this.analysis_name = 'scan_meas';
+        this.emitter_select = '#scm_laser';
+        this.metters_tree = '#jstree_scan'
+        this.wavelen_start_input = '#scm_wavelen_start'
+        this.wavelen_start_alert = '#scm_wavelen_start_alert'
+        this.wavelen_stop_input = '#scm_wavelen_stop'
+        this.wavelen_stop_alert = '#scm_wavelen_stop_alert'
+        this.wavelen_step_input = '#scm_wavelen_step'
+        this.wavelen_step_alert = '#scm_wavelen_step_alert'
+        this.power_input = '#scm_power'
+        this.power_alert = '#scm_power_alert'
+        this.plot_selector = 'scan_plot'
+        this.plot_name = 'Сканирование'
+        this.run_control_btn = '#scm_start_meas'
+        this.meters_modal = '#scan_devices_modal'
+        this.clear_traces_btn = '#sсm_clear_traces'
+    }
+
+    async run_analysis() {
+        if (this.meters.length === 0) {
+            alert('Не выбран ни один прибор для анализа');
+            return
+        }
+
+        this.set_wavelen_start();
+        this.set_wavelen_stop();
+        this.set_wavelen_step();
+
+        this.set_wavelen_range();
+        this.clear_traces();
+        $(this.run_control_btn).attr('mode', 'stop');
+        $(this.run_control_btn).text('Остановить');
+        await eel.run_analysis(this.analysis_name)().then(response => {
+        })
+
+    }
+
+    async stop_analysis() {
+        $(this.run_control_btn).text('Начать измерение');
+        $(this.run_control_btn).attr('mode', 'start');
+        await eel.stop_analysis(this.analysis_name)().then(response => {
+        })
     }
 
   }
 
   const single_measure = new SingleMeasure();
   const cont_measure = new ContMeasure();
+  const scan_measure = new ScanMeasure();
