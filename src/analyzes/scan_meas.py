@@ -3,8 +3,8 @@ from threading import Thread
 
 from itertools import chain
 
-from src.analyzes.abstract import AbstractAnalyze
-from src.core.utils import plot_traces
+from analyzes.abstract import AbstractAnalyze
+from core.utils import plot_traces
 
 
 def get_device_ch(dev_ch_str):

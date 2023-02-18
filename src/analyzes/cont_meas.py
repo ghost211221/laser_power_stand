@@ -3,8 +3,8 @@ from threading import Thread
 
 from itertools import chain
 
-from src.analyzes.abstract import AbstractAnalyze
-from src.core.utils import push_cont_data
+from analyzes.abstract import AbstractAnalyze
+from core.utils import push_cont_data
 
 
 def get_device_ch(dev_ch_str):
@@ -60,7 +60,7 @@ class ContMeas(AbstractAnalyze):
             device.set_status('ready')
 
     def run(self):
-        self.measure_thread = Thread(target=self.make_analyse)        
+        self.measure_thread = Thread(target=self.make_analyse)
         self.measure_thread.start()
 
     def stop(self):

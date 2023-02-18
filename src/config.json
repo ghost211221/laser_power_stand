@@ -1,4 +1,4 @@
 {
     "run_modes": ["normal", "testing"],
-    "run_mode": "testing"
+    "run_mode": "normal"
 }

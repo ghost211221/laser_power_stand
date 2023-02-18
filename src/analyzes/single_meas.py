@@ -1,8 +1,8 @@
 from itertools import chain
 
-from src.analyzes.abstract import AbstractAnalyze
-from src.analyzes.decorators import plot_results
-from src.core.utils import plot_traces
+from analyzes.abstract import AbstractAnalyze
+from analyzes.decorators import plot_results
+from core.utils import plot_traces
 
 class SingleMeas(AbstractAnalyze):
     """

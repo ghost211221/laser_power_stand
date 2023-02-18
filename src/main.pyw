@@ -47,8 +47,8 @@ def init_analyses():
 
 def close_callback(route, websockets):
     print('callback')
-    # context.exit_mode = True
-    # exit()
+    context.exit_mode = True
+    exit()
 
 
 def main():
