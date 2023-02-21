@@ -16,7 +16,7 @@ from analyzes.scan_meas import ScanMeas
 from core.context import Context
 from core.fabric import enumerate_entities, get_class_from_imported_module
 from core.logs.log import init_log
-from core.workers import log_processing_worker, task_processing_worker, get_devices_status_worker
+from core.workers import log_processing_worker, task_processing_worker, get_devices_status_worker, get_laser_temperature
 
 
 context = Context()
@@ -71,6 +71,9 @@ def main():
 
     tasks_processor = Thread(target=task_processing_worker)
     tasks_processor.start()
+
+    temp_processor = Thread(target=get_laser_temperature)
+    temp_processor.start()
 
     status_processor = Thread(target=get_devices_status_worker)
     # status_processor.start()

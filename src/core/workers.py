@@ -7,6 +7,7 @@ import eel
 from core.context import Context
 from core.queues import TasksQueue
 from core.logs.log import LoggingQueue
+from core.utils import get_device_by_statuses_and_type
 
 
 c = Context()
@@ -45,4 +46,15 @@ def get_devices_status_worker():
         for device in c.devices:
             eel.set_device_status(device.label, device.status)
         time.sleep(0.5)
+
+def get_laser_temperature():
+    while not c.exit_mode:
+        dev = get_device_by_statuses_and_type(('processing', 'ready'), 'laser')
+        if dev:
+            val, msg = dev.get_temperature()
+            eel.show_temp(val, msg)
+        else:
+            eel.show_temp('', '')
+
+        time.sleep(5)
 

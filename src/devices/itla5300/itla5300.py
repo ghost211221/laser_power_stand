@@ -19,7 +19,6 @@ class Helper():
     """build cmd and convert to bytes with control sum"""
     def __init__(self):
         self._cmd_int = 0
-        self._response = b''
 
         self._bytes_line = b''
 
@@ -99,6 +98,14 @@ class Helper():
 
         self._cmd_int |= bip4<<28
         self._gen_int_arr()
+
+    def decode_response(self, response):
+        _response = int.from_bytes(response, byteorder='little', signed=True)
+
+        status = _response & 3<<24
+        value = _response & 65535
+
+        return status, value
 
 
 class ITLA5300(AbstractDevice):
@@ -274,6 +281,37 @@ class ITLA5300(AbstractDevice):
 
     def can_set_power(self, value):
         return True
+
+    def get_temperature(self):
+        if not self.connection or not self.connection.connected:
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
+
+        cmd = (0, 67, 0)
+
+        # put to regs
+        self.q.put(f'\nGetting temperature {self.dev_name}')
+
+        self.__helper.setRW(cmd[0])
+        self.__helper.setRegData(cmd[2])
+        self.__helper.setRegAddr(cmd[1])
+        bytes = self.__helper.genData()
+        try:
+            ans = self.send(bytes)
+            self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+            log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+        except Exception as e:
+            log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+            self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+
+        status, val = self.__helper.decode_response(ans)
+        if status == 0:
+            return val * 100, ''
+        elif status == 1:
+            log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+            self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+
+            return -1, 'failed to get temperatue'
+
 
 
 if __name__ == '__main__':

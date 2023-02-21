@@ -148,6 +148,16 @@ function show_cont_data(analysis_type, data) {
     }
 }
 
+eel.expose(show_temp);
+function(temp, msg) {
+    if (temp == -1 ) {
+        alert('Ошибка измерения температуры');
+    } else {
+        $('#').text(`${temp} ℃`)
+    }
+}
+
+
 
 function dBm_to_mWt(dBm) {
     return 10 ** (dBm / 10)

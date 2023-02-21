@@ -34,6 +34,11 @@ def get_devices_list():
 
     return devices
 
+def get_device_by_statuses_and_type(statuses, dev_type):
+    for device in context.devices:
+        if device.status in statuses and device.dev_type == dev_type:
+            return device
+
 def get_devices_models_list(group=None):
     """get list of devices models. if group proveided - devices of group"""
     devices = []
