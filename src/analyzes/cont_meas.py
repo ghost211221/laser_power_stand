@@ -41,6 +41,8 @@ class ContMeas(AbstractAnalyze):
                 device.set_wavelen(self.wavelen)
                 device.set_power(self.power)
 
+            self.emitter.set_beam_on()
+            sleep(1)
             results = []
             for meter in self.meters:
                 res = meter.get_power()
@@ -54,6 +56,8 @@ class ContMeas(AbstractAnalyze):
                     })
 
             push_cont_data(self.analyse_name, res_dict)
+
+        self.emitter.set_beam_off()
 
         for device in chain([self.emitter,], self.meters):
             device.block_status = True

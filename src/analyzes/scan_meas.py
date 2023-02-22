@@ -40,6 +40,8 @@ class ScanMeas(AbstractAnalyze):
                 device.set_wavelen(self.wavelen)
                 device.set_power(self.power)
 
+            self.emitter.set_beam_on()
+            sleep(1)
             results = []
             for meter in self.meters:
                 res = meter.get_power()
@@ -49,6 +51,7 @@ class ScanMeas(AbstractAnalyze):
                     trace_id = f'{meter.label}__{ch}'
                     self.add_values_to_trace(trace_id, float(self.wavelen), float(r))
 
+            self.emitter.set_beam_off()
             plot_traces(self.analyse_name, self.traces)
 
             sleep(1)

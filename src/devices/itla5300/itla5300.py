@@ -100,7 +100,7 @@ class Helper():
         self._gen_int_arr()
 
     def decode_response(self, response):
-        _response = int.from_bytes(response, byteorder='little', signed=True)
+        _response = int.from_bytes(response, byteorder='big', signed=True)
 
         status = _response & 3<<24
         value = _response & 65535
@@ -169,7 +169,7 @@ class ITLA5300(AbstractDevice):
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         # calculate frequency in THz
-        freq = 299792458 / wave_len / 10 ** 3
+        freq = 299792458 / float(wave_len) / 10 ** 3
         fcf1 = int(freq)
         freq_ = (freq - fcf1) * 10 ** 4
         fcf2 = int(freq_)
@@ -189,9 +189,9 @@ class ITLA5300(AbstractDevice):
             self.__helper.setRW(cmd[0])
             self.__helper.setRegData(cmd[2])
             self.__helper.setRegAddr(cmd[1])
-            bytes = self.__helper.genData()
+            bytes_ = self.__helper.genData()
             try:
-                ans = self.send(bytes)
+                ans = self.send(bytes_)
                 self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
                 log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
             except Exception as e:
@@ -294,18 +294,18 @@ class ITLA5300(AbstractDevice):
         self.__helper.setRW(cmd[0])
         self.__helper.setRegData(cmd[2])
         self.__helper.setRegAddr(cmd[1])
-        bytes = self.__helper.genData()
+        bytes_ = self.__helper.genData()
         try:
-            ans = self.send(bytes)
-            self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
-            log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+            ans = self.io(bytes_)
+            self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+            log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
         except Exception as e:
             log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
             self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
         status, val = self.__helper.decode_response(ans)
         if status == 0:
-            return val * 100, ''
+            return round(val / 100, 1), ''
         elif status == 1:
             log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
             self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')

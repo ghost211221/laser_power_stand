@@ -149,11 +149,11 @@ function show_cont_data(analysis_type, data) {
 }
 
 eel.expose(show_temp);
-function(temp, msg) {
+function show_temp(temp, msg) {
     if (temp == -1 ) {
         alert('Ошибка измерения температуры');
     } else {
-        $('#').text(`${temp} ℃`)
+        $('#temp_div').text(`${temp} ℃`)
     }
 }
 

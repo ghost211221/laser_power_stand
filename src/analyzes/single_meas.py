@@ -27,6 +27,8 @@ class SingleMeas(AbstractAnalyze):
         for device in chain([self.emitter,], self.meters):
             device.set_power(self.power)
 
+        self.emitter.set_beam_on()
+
         results = []
         for meter in self.meters:
             res = meter.get_power()
@@ -35,6 +37,8 @@ class SingleMeas(AbstractAnalyze):
             for ch, r in enumerate(res):
                 trace_id = f'{meter.label}__{ch}'
                 self.add_values_to_trace(trace_id, float(self.wavelen), float(r))
+
+        self.emitter.set_beam_on()
 
     def stop(self):
         pass

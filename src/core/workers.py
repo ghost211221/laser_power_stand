@@ -51,8 +51,12 @@ def get_laser_temperature():
     while not c.exit_mode:
         dev = get_device_by_statuses_and_type(('processing', 'ready'), 'laser')
         if dev:
-            val, msg = dev.get_temperature()
-            eel.show_temp(val, msg)
+            try:
+                val, msg = dev.get_temperature()
+                eel.show_temp(val, msg)
+            except Exception as e:
+                q.put('Error During temp meas')
+                q.put(e)
         else:
             eel.show_temp('', '')
 
