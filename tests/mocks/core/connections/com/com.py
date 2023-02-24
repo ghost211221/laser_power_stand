@@ -1,11 +1,14 @@
 import time
+import struct
 
 import yaml
 
 from tests.mocks.uut import UUT
+from src.devices.itla5300.itla5300 import Helper
 
 
 uut = UUT()
+h = Helper()
 
 
 def decode_data(data):
@@ -76,11 +79,19 @@ class Com():
         time.sleep(0.001)
         rw, cmd_, data = self.__decode_cmd(cmd)
         for cmd_dict in  self.__cmds:
-            if rw == 1 and cmd_ == 49:
-                uut.power = data / 100
-
             if cmd_dict.get('rw') == rw and cmd_dict.get('cmd') == cmd_ and cmd_dict.get('data') == data:
                 return cmd_dict.get('ans').encode()
+            
+        if rw == 1 and cmd_ == 49:
+            uut.power = data / 100
+
+        if rw == 1 and cmd_ == 0x32:
+            h.setRegAddr(0x32)
+            h.setRW(0)
+            h.setRegData(8)
+            _bytes = h.getCmdData()
+
+            return _bytes
 
 
 

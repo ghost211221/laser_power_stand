@@ -229,7 +229,7 @@ class ITLA5300(AbstractDevice):
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         cmds = [
-            (1, 50, 8),
+            (1, 0x32, 8),
         ]
 
         # put to regs
@@ -247,6 +247,16 @@ class ITLA5300(AbstractDevice):
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+        
+        status, val = self.get_beam_state()
+        if status != 0:
+            return 'Failed to enable beam'
+        
+        while val != 8:
+            status, val = self.get_beam_state()
+            time.sleep(0.1)
+
+        self.q.put(f'\nBeam enabled')
 
     @process_status
     def set_beam_off(self):
@@ -254,7 +264,7 @@ class ITLA5300(AbstractDevice):
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         cmds = [
-            (1, 50, 0),
+            (1, 0x32, 0),
         ]
 
         # put to regs
@@ -272,6 +282,32 @@ class ITLA5300(AbstractDevice):
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+
+    @process_status
+    def get_beam_state(self):
+        if not self.connection or not self.connection.connected:
+            raise ConnectionError(f'Device {self.dev_name} is not connected')
+
+        cmd = (0, 0x32, 0)
+
+        # put to regs
+        self.q.put(f'\Getting beam status on {self.dev_name}')
+
+        self.__helper.setRW(cmd[0])
+        self.__helper.setRegData(cmd[2])
+        self.__helper.setRegAddr(cmd[1])
+        _bytes = self.__helper.genData()
+        try:
+            ans = self.io(_bytes)
+            self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(_bytes)}\nrecieved: {ans}')
+            log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(_bytes)}\nrecieved: {ans}')
+            return self.__helper.decode_response(ans)
+        except Exception as e:
+            log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+            self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+
+            return -1, 0
+            
 
     def can_set_wavelen(self, value):
         if value and isinstance(value, (int, float)):

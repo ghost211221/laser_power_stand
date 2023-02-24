@@ -54,7 +54,6 @@ class ScanMeas(AbstractAnalyze):
             self.emitter.set_beam_off()
             plot_traces(self.analyse_name, self.traces)
 
-            sleep(1)
             self.wavelen += self.wavelen_step
 
         for device in chain([self.emitter,], self.meters):

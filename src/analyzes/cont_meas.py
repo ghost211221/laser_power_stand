@@ -42,7 +42,7 @@ class ContMeas(AbstractAnalyze):
                 device.set_power(self.power)
 
             self.emitter.set_beam_on()
-            sleep(1)
+
             results = []
             for meter in self.meters:
                 res = meter.get_power()
