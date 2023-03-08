@@ -3,8 +3,13 @@ from threading import Thread
 
 from itertools import chain
 
-from analyzes.abstract import AbstractAnalyze
-from core.utils import plot_traces
+from .abstract import AbstractAnalyze
+from src.core.utils import plot_traces
+
+from src.core.queues import TasksQueue
+
+
+tq = TasksQueue()
 
 
 def get_device_ch(dev_ch_str):
@@ -30,29 +35,33 @@ class ScanMeas(AbstractAnalyze):
 
     def make_analyse(self):
         self.can_run = True
+
+        # clear previous traces and create new
+        for device in self.meters:
+            self.delete_traces(device)
+            self.add_device_traces(device)
+
         for device in chain([self.emitter,], self.meters):
             device.block_status = True
             device.set_status('processing')
 
         self.wavelen = self.wavelen_start
+
+        meters_labs = [m.label for m in self.meters]
         while self.can_run and self.wavelen <= self.wavelen_stop:
+            
             for device in chain([self.emitter,], self.meters):
-                device.set_wavelen(self.wavelen)
-                device.set_power(self.power)
+                tq.put((chain([self.emitter.label,], meters_labs), 'set_wavelen', ['value', self.wavelen]))
+                tq.put((chain([self.emitter.label,], meters_labs), 'set_power', ['value', self.power]))
 
-            self.emitter.set_beam_on()
-            sleep(1)
-            results = []
-            for meter in self.meters:
-                res = meter.get_power()
-                results.append({'device': device.label, 'res': res, 'wavelen': self.wavelen})
+            # enable laser
+            tq.put(([self.emitter.label, ], 'set_beam_on', ['mode', 'block']))
 
-                for ch, r in enumerate(res):
-                    trace_id = f'{meter.label}__{ch}'
-                    self.add_values_to_trace(trace_id, float(self.wavelen), float(r))
-
-            self.emitter.set_beam_off()
-            plot_traces(self.analyse_name, self.traces)
+            # make measure
+            
+            tq.put((meters_labs, 'get_power', ['callback', 'add_measres_to_traces', 'analyse', 'scan_meas']))
+            # disable laser
+            tq.put(([self.emitter.label, ], 'set_beam_off', []))
 
             self.wavelen += self.wavelen_step
 

@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
+from src.analyzes.decorators import plot_results
 
 class Replace():
     pass
@@ -15,21 +16,23 @@ class AbstractAnalyze(metaclass=ABCMeta):
     wavelen_stop = 1568.6
     wavelen_step = 0.005
     traces = []
+    emitter_ready = False
+    should_plot = True
 
     def set_wavelen(self, value):
         self.wavelen = value
 
     def set_wavelen_min(self, value):
-        self.wavelen_start = value
+        self.wavelen_start = float(value)
 
     def set_wavelen_max(self, value):
-        self.wavelen_stop = value
+        self.wavelen_stop = float(value)
 
     def set_wavelen_step(self, value):
-        self.wavelen_step = value
+        self.wavelen_step = float(value)
 
     def set_power(self, value):
-        self.power = value
+        self.power = float(value)
 
     def add_device_traces(self, device):
         if device.dev_type != 'power_meter':
@@ -51,11 +54,18 @@ class AbstractAnalyze(metaclass=ABCMeta):
         for ch in range(device.chanels):
             trace_id = f'{device.label}__{ch}'
             for i, trace in enumerate(self.traces):
-                if trace.get('id') == trace_id:
-                    self.traces[i] = Replace()
+                try:
+                    if trace.get('id') == trace_id:
+                        self.traces[i] = Replace()
+                except Exception:
+                    pass
+                
+        self.traces = list(filter(lambda t: not isinstance(t, Replace), self.traces))
 
-        self.traces = filter(lambda t: not isinstance(Replace), self.traces)
-
+    @plot_results
+    def plot(self):
+        pass
+    
     def add_values_to_trace(self, trace_id, x, y):
         for trace in self.traces:
             if trace.get('id') == trace_id:
@@ -63,6 +73,12 @@ class AbstractAnalyze(metaclass=ABCMeta):
                 return
 
         raise Exception(f'trace {trace_id} not found!')
+
+    def mark_emitter_ready(self):
+        self.emitter_ready = True
+
+    def mark_emitter_off(self):
+        self.emitter_ready = False
 
     @property
     def can_run(self):

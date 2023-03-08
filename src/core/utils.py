@@ -4,9 +4,15 @@ import serial.tools.list_ports
 
 import eel
 
-from core.context import Context
+import src.core.callbacks as cb
+from src.core.context import Context
+
 
 context = Context()
+
+def get_callback(cb_name):
+    """get callback by name, return None if not found"""
+    return getattr(cb, cb_name, None)
 
 def get_comports_list():
     return [port.name for port in serial.tools.list_ports.comports()]
@@ -83,7 +89,3 @@ def plot_traces(analysis_type, traces):
             }
         )
     eel.show_traces(analysis_type, data)
-
-def push_cont_data(analysis_type, data):
-    res = eel.show_cont_data(analysis_type, data)()
-    return res

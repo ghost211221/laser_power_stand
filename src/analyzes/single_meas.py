@@ -1,8 +1,11 @@
 from itertools import chain
 
-from analyzes.abstract import AbstractAnalyze
-from analyzes.decorators import plot_results
-from core.utils import plot_traces
+from .abstract import AbstractAnalyze
+
+from src.core.queues import TasksQueue
+
+
+tq = TasksQueue()
 
 class SingleMeas(AbstractAnalyze):
     """
@@ -18,8 +21,9 @@ class SingleMeas(AbstractAnalyze):
 
     def __init__(self):
         super().__init__()
+        self.emitter_ready = False
+        self.should_plot = True
 
-    @plot_results
     def run(self):
         for device in chain([self.emitter,], self.meters):
             device.set_wavelen(self.wavelen)
@@ -27,18 +31,15 @@ class SingleMeas(AbstractAnalyze):
         for device in chain([self.emitter,], self.meters):
             device.set_power(self.power)
 
-        self.emitter.set_beam_on()
+        # enable laser
+        tq.put(([self.emitter.label, ], 'set_beam_on', ['mode', 'block']))
 
-        results = []
-        for meter in self.meters:
-            res = meter.get_power()
-            results.append({'device': device.label, 'res': res, 'wavelen': self.wavelen})
-
-            for ch, r in enumerate(res):
-                trace_id = f'{meter.label}__{ch}'
-                self.add_values_to_trace(trace_id, float(self.wavelen), float(r))
-
-        self.emitter.set_beam_on()
+        # make measure
+        meters_labs = [m.label for m in self.meters]
+        tq.put((meters_labs, 'get_power', ['callback', 'add_measres_to_traces', 'analyses', 'single_meas']))
+        # disable laser
+        tq.put(([self.emitter.label, ], 'set_beam_off', []))
+        # plot will be called by callback
 
     def stop(self):
         pass

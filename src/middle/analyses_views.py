@@ -1,6 +1,6 @@
 import eel
 
-from core.context import Context
+from src.core.context import Context
 
 
 c = Context()

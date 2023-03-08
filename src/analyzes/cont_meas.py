@@ -3,9 +3,12 @@ from threading import Thread
 
 from itertools import chain
 
-from analyzes.abstract import AbstractAnalyze
-from core.utils import push_cont_data
+from .abstract import AbstractAnalyze
 
+from src.core.queues import TasksQueue
+
+
+tq = TasksQueue()
 
 def get_device_ch(dev_ch_str):
     return dev_ch_str.split('__')
@@ -34,30 +37,22 @@ class ContMeas(AbstractAnalyze):
             device.block_status = True
             device.set_status('processing')
 
+        for device in chain([self.emitter,], self.meters):
+            device.set_wavelen(self.wavelen)
+            device.set_power(self.power)
+
+        # enable laser
+        tq.put(([self.emitter.label, ], 'set_beam_on', ['mode', 'block']))
+
         while self.can_run:
             sleep(1)
-            res_dict = []
-            for device in chain([self.emitter,], self.meters):
-                device.set_wavelen(self.wavelen)
-                device.set_power(self.power)
-
-            self.emitter.set_beam_on()
-
-            results = []
-            for meter in self.meters:
-                res = meter.get_power()
-                results.append({'device': device.label, 'res': res, 'wavelen': self.wavelen})
-
-                for ch, r in enumerate(res):
-                    res_id = f'{meter.label}__{ch}'
-                    res_dict.append({
-                        'id': res_id,
-                        'val': r
-                    })
-
-            push_cont_data(self.analyse_name, res_dict)
-
-        self.emitter.set_beam_off()
+            
+            # make measure
+            meters_labs = [m.label for m in self.meters]
+            tq.put((meters_labs, 'get_power', ['callback', 'push_cont_data']))
+            
+        # disable laser
+        tq.put(([self.emitter.label, ], 'set_beam_off', []))
 
         for device in chain([self.emitter,], self.meters):
             device.block_status = True

@@ -2,10 +2,10 @@ import logging
 
 
 from ..abstract import AbstractDevice
-from core.context import Context
-from core.exceptions import ConnectionError
+from src.core.context import Context
+from src.core.exceptions import ConnectionError
 
-from devices.decorators import process_status
+from src.devices.decorators import process_status
 
 log = logging.getLogger(__name__)
 
@@ -62,3 +62,6 @@ class PM2100(AbstractDevice):
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
 
         return ans.decode().strip().split(',')
+
+    def set_wavelen(self, wave_len, *args, **kwargs):
+        self.wavelen = wave_len

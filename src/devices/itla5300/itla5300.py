@@ -2,15 +2,16 @@ import os
 from copy import copy
 import struct
 import logging
+import time
 
 import yaml
 
 from ..abstract import AbstractDevice
-from core.context import Context
-from core.exceptions import ConnectionError
-from core.utils import mW_to_dBm
+from src.core.context import Context
+from src.core.exceptions import ConnectionError
+from src.core.utils import mW_to_dBm
 
-from devices.decorators import process_status
+from src.devices.decorators import process_status, need_block
 
 log = logging.getLogger(__name__)
 c = Context()
@@ -56,7 +57,6 @@ class Helper():
         self._cmd_int |= reg_addr<<16
 
         self._calcCheckSum()
-
 
     def setRegData(self, data):
         if data < 0 or data > 65535:
@@ -163,7 +163,7 @@ class ITLA5300(AbstractDevice):
 
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr} done')
 
-    @process_status
+    # @process_status
     def set_wavelen(self, wave_len, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
@@ -198,7 +198,7 @@ class ITLA5300(AbstractDevice):
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
-    @process_status
+    # @process_status
     def set_power(self, power, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
@@ -224,7 +224,8 @@ class ITLA5300(AbstractDevice):
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
     @process_status
-    def set_beam_on(self):
+    @need_block
+    def set_beam_on(self, block=False, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
@@ -252,14 +253,17 @@ class ITLA5300(AbstractDevice):
         if status != 0:
             return 'Failed to enable beam'
         
-        while val != 8:
+        # temporary
+        return
+     
+        while block and val != 8:
             status, val = self.get_beam_state()
             time.sleep(0.1)
 
         self.q.put(f'\nBeam enabled')
 
     @process_status
-    def set_beam_off(self):
+    def set_beam_off(self, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
@@ -284,7 +288,7 @@ class ITLA5300(AbstractDevice):
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
     @process_status
-    def get_beam_state(self):
+    def get_beam_state(self, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
@@ -301,13 +305,15 @@ class ITLA5300(AbstractDevice):
             ans = self.io(_bytes)
             self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(_bytes)}\nrecieved: {ans}')
             log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(_bytes)}\nrecieved: {ans}')
-            return self.__helper.decode_response(ans)
+            status, state =  self.__helper.decode_response(ans)
+
+            return status, state == 8
+        
         except Exception as e:
             log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
             self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
-            return -1, 0
-            
+            return -1, False            
 
     def can_set_wavelen(self, value):
         if value and isinstance(value, (int, float)):
@@ -318,7 +324,7 @@ class ITLA5300(AbstractDevice):
     def can_set_power(self, value):
         return True
 
-    def get_temperature(self):
+    def get_temperature(self, *args, **kwargs):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 

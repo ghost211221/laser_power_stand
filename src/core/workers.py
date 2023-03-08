@@ -4,15 +4,16 @@ from threading import Thread
 
 import eel
 
-from core.context import Context
-from core.queues import TasksQueue
-from core.logs.log import LoggingQueue
-from core.utils import get_device_by_statuses_and_type
+from .context import Context
+from .queues import TasksQueue
+from .logs.log import LoggingQueue
+from .utils import get_device_by_statuses_and_type, get_callback
 
 
 c = Context()
 q = LoggingQueue()
 tq = TasksQueue()
+
 
 def log_processing_worker():
     while not c.exit_mode:
@@ -24,6 +25,25 @@ def log_processing_worker():
             pass
 
 def task_processing_worker():
+    def _get_callback_from_args(args):
+        for i, arg in enumerate(args):
+            if i > 0 and args[i-1] == 'callback':
+                return arg
+            
+    def _get_callback_args(args):
+        for i, arg in enumerate(args):
+            if i >= 3 and args[i-3] == 'callback' and args[i-1] == 'analyse':
+                return [('analyse', arg), ]
+            
+        return []
+            
+    def _get_func_args(args):
+        for i, arg in enumerate(args):
+            if i >= 1 and args[i-1] == 'value':
+                return [arg, ]
+            
+        return []
+            
     while not c.exit_mode:
         try:
             # get task and create Thread
@@ -32,10 +52,18 @@ def task_processing_worker():
                 device = c.get_device_by_lab(device_lab)
                 try:
                     func = getattr(device, data[1])
-                    func(data[2])
+                    func_args = _get_func_args(data[2])
+                    res = func(*func_args)
+                    args = data[2]
+                    cb = _get_callback_from_args(args)
+                    if cb:
+                        callback = get_callback(cb)
+                        args = _get_callback_args(args)
+                        if callback:
+                            callback(res, device, *args)
 
-                except AttributeError:
-                    pass
+                except AttributeError as e:
+                    print(e)
 
         except queue.Empty:
             pass
@@ -52,11 +80,13 @@ def get_laser_temperature():
         dev = get_device_by_statuses_and_type(('processing', 'ready'), 'laser')
         if dev:
             try:
-                val, msg = dev.get_temperature()
-                eel.show_temp(val, msg)
+                tq.put([dev, ], 'get_temperature', ['callback', 'show_temp'])
+                # val, msg = dev.get_temperature()
+                # eel.show_temp(val, msg)
             except Exception as e:
                 q.put('Error During temp meas')
                 q.put(e)
+                eel.show_temp('', '')
         else:
             eel.show_temp('', '')
 
