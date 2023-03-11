@@ -86,11 +86,7 @@ class Com():
             uut.power = data / 100
 
         if rw == 1 and cmd_ == 0x32:
-            h.setRegAddr(0x32)
-            h.setRW(0)
-            h.setRegData(8)
-            _bytes = h.getCmdData()
-
+            _bytes = bytes([0xD4, 0x32, 0x00, 0x08])
             return _bytes
 
 

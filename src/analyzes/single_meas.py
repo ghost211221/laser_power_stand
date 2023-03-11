@@ -36,7 +36,7 @@ class SingleMeas(AbstractAnalyze):
 
         # make measure
         meters_labs = [m.label for m in self.meters]
-        tq.put((meters_labs, 'get_power', ['callback', 'add_measres_to_traces', 'analyses', 'single_meas']))
+        tq.put((meters_labs, 'get_power', ['callback', 'add_measres_to_traces', 'analyse', 'single_meas']))
         # disable laser
         tq.put(([self.emitter.label, ], 'set_beam_off', []))
         # plot will be called by callback

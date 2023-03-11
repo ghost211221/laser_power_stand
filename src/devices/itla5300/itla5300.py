@@ -252,9 +252,6 @@ class ITLA5300(AbstractDevice):
         status, val = self.get_beam_state()
         if status != 0:
             return 'Failed to enable beam'
-        
-        # temporary
-        return
      
         while block and val != 8:
             status, val = self.get_beam_state()
