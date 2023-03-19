@@ -1,6 +1,8 @@
 import time
 import struct
 
+from random import randrange
+
 import yaml
 
 from tests.mocks.uut import UUT
@@ -84,6 +86,9 @@ class Com():
             
         if rw == 1 and cmd_ == 49:
             uut.power = data / 100
+            
+        if rw == 0 and cmd_ == 67:           
+            return bytes([0, 67, 0, randrange(20, 80)])
 
         if rw == 1 and cmd_ == 0x32:
             _bytes = bytes([0xD4, 0x32, 0x00, 0x08])

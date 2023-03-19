@@ -9,6 +9,7 @@ import eel
 from  middle.devices_views import *
 from  middle.analyses_views import *
 from  middle.log_views import *
+from  middle.header_views import *
 
 from src.analyzes.single_meas import SingleMeas
 from src.analyzes.cont_meas import ContMeas
@@ -46,10 +47,12 @@ def init_analyses():
     context.analyses.append(ScanMeas())
 
 def close_callback(route, websockets):
-    print('callback')
     context.exit_mode = True
     exit()
 
+def prepare_dirs():
+    if not os.path.exists('./configs'):
+        os.mkdir('./configs')
 
 def main():
     init_context()
@@ -63,6 +66,8 @@ def main():
     # prepare devices classes
     init_entities('src.devices', 'dev_name', 'devices_classes')
     init_analyses()
+
+    prepare_dirs()
 
     eel.init('src/front', allowed_extensions=['.js', '.html'],)
 

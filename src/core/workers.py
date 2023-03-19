@@ -80,7 +80,7 @@ def get_laser_temperature():
         dev = get_device_by_statuses_and_type(('processing', 'ready'), 'laser')
         if dev:
             try:
-                tq.put([dev, ], 'get_temperature', ['callback', 'show_temp'])
+                tq.put(([dev.label, ], 'get_temperature', ['callback', 'show_temp']))
                 # val, msg = dev.get_temperature()
                 # eel.show_temp(val, msg)
             except Exception as e:

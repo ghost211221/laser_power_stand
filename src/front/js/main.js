@@ -125,6 +125,14 @@ $( document ).ready(function() {
 
     })
 
+    $('#save_config_btn').click(function() {
+        let res = configs_handler.validate_config_name();
+        if (res) {
+            configs_handler.save_config()
+        }
+        $('#save_config_modal').modal('hide');
+    })
+
 
 });
 
@@ -161,6 +169,20 @@ function show_temp(temp, msg) {
 
 function dBm_to_mWt(dBm) {
     return 10 ** (dBm / 10)
+}
+
+let configs_handler = {
+    configs_list: [],
+    get_configs_list: function() {
+
+    },
+    validate_config_name: function() {
+        let val = $('#save_config_name').val();
+        return val !== ''
+    },
+    save_config: function() {
+        eel.save_config($('#save_config_name').val(), home_panel_handler.added_devices)();
+    }
 }
 
 
