@@ -87,6 +87,7 @@ $( document ).ready(function() {
             scan_measure.set_power($(scan_measure.power_input).val());
         }
     });
+    
     $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
     $(cont_measure.emitter_select).change(function() {cont_measure.set_emitter() })
     $(scan_measure.emitter_select).change(function() {scan_measure.set_emitter() })
@@ -133,6 +134,24 @@ $( document ).ready(function() {
         $('#save_config_modal').modal('hide');
     })
 
+
+    $('#load_config_btn').click(async function() {
+        let selected = $('.cfg_item.active')[0];
+
+        if (selected === undefined) {
+            alert('Выберите конфигурацию');
+            return
+        }
+
+        const res = await eel.load_config(selected.text)();
+        if (res.status === 'fail') {
+            alert(res.mesage);
+        }
+
+        $('#load_config_modal').modal('hide');
+
+        home_panel_handler.render_devices()
+    })
 
 });
 
