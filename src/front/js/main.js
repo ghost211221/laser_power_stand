@@ -1,4 +1,7 @@
 $( document ).ready(function() {
+
+    $('#device_addr_sel').hide();
+
     home_panel_handler.get_connections_translation_dict();
     home_panel_handler.render_devices();
     home_panel_handler.set_list_of_devices_models();
@@ -13,13 +16,14 @@ $( document ).ready(function() {
 
     $('#submit_new_device').click(async function() {
         let pass = await home_panel_handler.validate();
+        let selected_conn_type = $('#device_connection_type').val();
         home_panel_handler.add_new_device(
             pass,
             $('#device_name').val(),
             $('#device_type').val(),
             $('#device_model').val(),
             $('#device_connection_type').val(),
-            $('#device_addr').val(),
+            selected_conn_type === 'COM' ? $('#device_addr_sel').val() : $('#device_addr_line').val(),
         );
     })
 
@@ -153,6 +157,25 @@ $( document ).ready(function() {
         home_panel_handler.render_devices()
     })
 
+    $('#device_connection_type').change(async function() {
+        let val = $(this).val();
+        if (val === '') {
+            $('#device_addr_line').show();
+            $('#device_addr_sel').hide();
+        } else if (val === 'COM') {
+            $('#device_addr_line').hide();
+            $('#device_addr_sel').show();
+            const data = await eel.get_com_ports()();
+
+            for (let port of data) {
+                $('#device_addr_sel').append($('<option>', {
+                    value: port,
+                    text: port
+                }));
+            }
+        }
+    });
+
 });
 
 eel.expose(set_device_status);
@@ -183,7 +206,6 @@ function show_temp(temp, msg) {
         $('#temp_div').text(`${temp} ℃`)
     }
 }
-
 
 
 function dBm_to_mWt(dBm) {
@@ -233,14 +255,16 @@ let home_panel_handler = {
         $('#device_type option').prop("selected", false);
         $('#device_model option').prop("selected", false);
         $('#device_connection_type option').prop("selected", false);
-        $('#device_addr').val('');
+        $('#device_addr_line').val('');
+        $('#device_addr_sel').val('');
         $('#add_new_device_alert').empty();
     },
 
     reinit_modal: function() {
         $('#device_model').prop("disabled", false);
         $('#device_connection_type').prop("disabled", false);
-        $('#device_addr').prop("disabled", false);
+        $('#device_addr_line').prop("disabled", false);
+        $('#device_addr_sel').prop("disabled", false);
     },
 
     get_connections_translation_dict: async function() {

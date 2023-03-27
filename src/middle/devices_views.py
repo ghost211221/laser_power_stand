@@ -4,7 +4,7 @@ from src.core.consts import CONNECTIONS_TYPES
 from src.core.context import Context
 from src.core.exceptions import ConnectionError
 from src.core.fabric import add_device
-from src.core.utils import get_devices_list, get_devices_models_list, get_devices_labels_list, get_device_by_label
+from src.core.utils import get_devices_list, get_devices_models_list, get_devices_labels_list, get_device_by_label, get_comports_list
 from src.core.queues import TasksQueue
 
 
@@ -133,3 +133,7 @@ def e_delete_device(dev_name):
         status = 'fail'
 
     return {'status': status, 'message': msg}
+
+@eel.expose
+def get_com_ports():
+    return get_comports_list()

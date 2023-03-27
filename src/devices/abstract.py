@@ -18,6 +18,7 @@ class AbstractDevice(metaclass=ABCMeta):
     dev_name = None
     dev_addr = None
     dev_type = None
+    default_addr = None
     timeout = None
     status = 'init'
     chanels = 1
