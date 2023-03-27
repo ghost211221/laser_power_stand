@@ -342,7 +342,11 @@ let home_panel_handler = {
             <div class="m-1 card text-black bg-secondary sm-3 device-card" style="max-width: 11rem; min-width: 11rem;" id="object__${device_name}">
                 <div class="card-header" id="options__${device_name}">
                     <div class="d-flex justify-content-between">
-                        ${device_name}
+                        <span style="width: 110px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;"
+                        title="${device_name}">${device_name}</span>
                         <div class="lamp ${device_lamp_class}" id="lamp__${device_name}"></div>
                     </div>
                 </div>
