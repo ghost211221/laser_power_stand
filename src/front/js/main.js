@@ -162,6 +162,8 @@ $( document ).ready(function() {
         if (val === '') {
             $('#device_addr_line').show();
             $('#device_addr_sel').hide();
+            $('#device_addr_line').val('');
+
         } else if (val === 'COM') {
             $('#device_addr_line').hide();
             $('#device_addr_sel').show();
@@ -173,9 +175,15 @@ $( document ).ready(function() {
                     text: port
                 }));
             }
+        } else {
+            $('#device_addr_line').show();
+            $('#device_addr_sel').hide();
+
+            const msg = await eel.get_default_addr($('#device_model').val())();
+
+            $('#device_addr_line').val(msg.data);
         }
     });
-
 });
 
 eel.expose(set_device_status);
@@ -557,9 +565,11 @@ let home_panel_handler = {
 
         $('#device_connection_type').change(function() {
             if ($('#device_connection_type').val() === '') {
-                $('#device_addr').prop("disabled", true);
+                $('#device_addr_line').prop("disabled", true);
+                $('#device_addr_sel').prop("disabled", true);
             } else {
-                $('#device_addr').prop("disabled", false);
+                $('#device_addr_line').prop("disabled", false);
+                $('#device_addr_sel').prop("disabled", false);
             }
         })
     },

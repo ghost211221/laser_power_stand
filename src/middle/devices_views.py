@@ -137,3 +137,16 @@ def e_delete_device(dev_name):
 @eel.expose
 def get_com_ports():
     return get_comports_list()
+
+@eel.expose
+def get_default_addr(dev_type):
+    msg = ''
+    status = 'success'
+    for device in context.devices_classes.values():
+        if dev_type == device.dev_name:
+            return {'status': status, 'message': msg, 'data': getattr(device, 'default_addr', '')}
+
+    msg = f'Не удалось найти прибор'
+    status = 'fail'
+
+    return {'status': status, 'message': msg}
