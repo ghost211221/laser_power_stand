@@ -262,9 +262,9 @@ let home_panel_handler = {
 
     reinit_modal: function() {
         $('#device_model').prop("disabled", false);
-        $('#device_connection_type').prop("disabled", false);
-        $('#device_addr_line').prop("disabled", false);
-        $('#device_addr_sel').prop("disabled", false);
+        $('#device_connection_type').prop("disabled", true);
+        $('#device_addr_line').prop("disabled", true);
+        $('#device_addr_sel').prop("disabled", true);
     },
 
     get_connections_translation_dict: async function() {
@@ -292,10 +292,12 @@ let home_panel_handler = {
     },
 
     update_device: function() {
+        let selected_conn_type = $('#options__device_conntection').val();
+        let addr = selected_conn_type === 'COM' ? $('#options__device_addr_sel').val() : $('#options__device_addr_line').val();
         eel.e_update_device(
             $('#options__device_name').val(),
             $("#options__device_conntection").val(),
-            $('#options__device_addr').val()
+            addr
         )().then(response => {
             if (response.status === 'success') {
                 this.render_devices();
@@ -348,7 +350,7 @@ let home_panel_handler = {
         }
     },
 
-    render_device_card: function(device_name, device_type, device_model, device_connection_type, device_addr, device_status) {
+    render_device_card: async function(device_name, device_type, device_model, device_connection_type, device_addr, device_status) {
         let that = this;
         let device_lamp_class = 'lamp-init';
         let button_mode = 'connect';
@@ -413,6 +415,19 @@ let home_panel_handler = {
         });
 
         // enable read and modify for device
+        // first get com ports list and nest select
+        const comports = await eel.get_com_ports()();
+        $('#options__device_addr_sel').empty();
+        $('#options__device_addr_sel').append($('<option>', {
+            value: '',
+            text: ''
+        }));
+        for (let port of comports) {
+            $('#options__device_addr_sel').append($('<option>', {
+                value: port,
+                text: port
+            }));
+        }
         let selector = `#options__${device_name}`;
         $(selector).click(function() {
             $('#device_modal').modal('show');
@@ -427,7 +442,16 @@ let home_panel_handler = {
                 $("#options__device_type").val(device.device_type).change();
                 $("#options__device_model").val(device.device_model).change();
                 $("#options__device_conntection").val(type).change();
-                $('#options__device_addr').val(device.device_addr)
+                if (type === 'COM') {
+                    $('#options__device_addr_sel').show();
+                    $('#options__device_addr_sel').val(device.device_addr);
+                    $('#options__device_addr_line').hide();
+                } else {
+                    $('#options__device_addr_line').show();
+                    $('#options__device_addr_line').val(device.device_addr);
+                    $('#options__device_addr_sel').hide();
+                }
+                // $('#options__device_addr').val(device.device_addr)
             });
         })
 

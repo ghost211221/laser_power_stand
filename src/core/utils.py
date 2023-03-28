@@ -15,7 +15,12 @@ def get_callback(cb_name):
     return getattr(cb, cb_name, None)
 
 def get_comports_list():
-    return [port.name for port in serial.tools.list_ports.comports()]
+    ports = [port.name for port in serial.tools.list_ports.comports()]
+    if context.run_mode == 'testing':
+        ports.append('c')
+        ports.append('b')
+        ports.append('a')
+    return ports
 
 def mW_to_dBm(mW):
     return 10 * math.log10(float(mW))
