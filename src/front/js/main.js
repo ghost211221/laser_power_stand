@@ -31,13 +31,13 @@ $( document ).ready(function() {
         home_panel_handler.update_device();
     })
 
-    $(single_measure.meters_modal).on('shown.bs.modal', function(){
-        single_measure.nest_trees();
-    });
+    // $(single_measure.meters_modal).on('shown.bs.modal', function(){
+    //     single_measure.nest_trees();
+    // });
 
-    $(scan_measure.meters_modal).on('shown.bs.modal', function(){
-        scan_measure.nest_trees();
-    });
+    // $(scan_measure.meters_modal).on('shown.bs.modal', function(){
+    //     scan_measure.nest_trees();
+    // });
 
     $('#sm_set_meters_btn').click(function() {
         single_measure.set_meters()
@@ -195,6 +195,19 @@ $( document ).ready(function() {
             $('#device_addr_line').val(msg.data);
         }
     });
+
+    $('.save_to_csv').click(function() {
+        let analysis = $(this).attr('analyse');
+        let selected_traces = [];
+        if (analysis === 'single_meas') {
+            selected_traces = single_measure.meters;
+        }
+        if (analysis === 'scan_meas') {
+            selected_traces = scan_measure.meters;
+        }
+        eel.extract_traces(analysis, selected_traces)();
+    });
+
 });
 
 eel.expose(set_device_status);

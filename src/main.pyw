@@ -54,6 +54,9 @@ def prepare_dirs():
     if not os.path.exists('./configs'):
         os.mkdir('./configs')
 
+    if not os.path.exists('./traces'):
+        os.mkdir('./traces')
+
 def main():
     init_context()
     # init log, get connectiond and devices classes, put them to context

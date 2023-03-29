@@ -1,3 +1,7 @@
+import datetime
+import os
+import csv
+
 import eel
 
 from src.core.context import Context
@@ -122,3 +126,45 @@ def stop_analysis(analysis_name):
     analysis.stop()
 
     return {'status': 'success', 'message': ''}
+
+@eel.expose
+def extract_traces(analysis_name, meters):
+    traces = [f'{device["device"]}__{device["channel"]}' for device in meters]
+    if not analysis_name:
+        return {'status': 'fail', 'message': 'no analysis'}
+    
+    if not traces:
+        return {'status': 'fail', 'message': 'no traces'}
+
+    analysis = c.get_analyse_by_name(analysis_name)
+
+    headers = ['Wavelen, nm', ] + traces
+    wavelens = []
+    for trace in analysis.traces:
+        row = []
+        if trace.get('id') not in traces:
+            continue
+
+        for w in trace['data'].keys():
+            wavelens.append(w)
+
+        break
+
+    file_name = os.path.join('traces', f'traces__{datetime.datetime.now().strftime("%m-%d-%Y %H-%M-%S")}.csv')
+    with open(file_name, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.writer(f)
+
+        # write the header
+        writer.writerow(headers)
+
+        # write the data
+        for w in wavelens:
+            row = [w, ]
+            for trace in analysis.traces:
+                if trace.get('id') not in traces:
+                    continue
+
+                row.append(trace['data'][w])            
+
+            writer.writerow(row)
+            
