@@ -255,7 +255,7 @@ class ITLA5300(AbstractDevice):
      
         while block and val != 8:
             status, val = self.get_beam_state()
-            time.sleep(0.1)
+            time.sleep(0.01)
 
         self.q.put(f'\nBeam enabled')
 
@@ -341,6 +341,22 @@ class ITLA5300(AbstractDevice):
         except Exception as e:
             log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
             self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+            return -1, 'failed to get temperatue'
+        
+        cmd = (0, 0x0B, 0)
+
+        self.__helper.setRW(cmd[0])
+        self.__helper.setRegData(cmd[2])
+        self.__helper.setRegAddr(cmd[1])
+        bytes_ = self.__helper.genData()
+        try:
+            ans = self.io(bytes_)
+            self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+            log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+        except Exception as e:
+            log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+            self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+            return -1, 'failed to get temperatue'
 
         status, val = self.__helper.decode_response(ans)
         if status == 0:

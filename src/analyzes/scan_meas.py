@@ -75,3 +75,4 @@ class ScanMeas(AbstractAnalyze):
 
     def stop(self):
         self.can_run = False
+        tq.clear()

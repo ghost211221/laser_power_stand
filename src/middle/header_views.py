@@ -36,6 +36,7 @@ def load_config(conf_name):
     
     with open(file_name) as fp:
         devices = json.load(fp)
+        context.devices = []
         for device in devices:
             connection_type = None
             for tup in CONNECTIONS_TYPES:
@@ -50,8 +51,9 @@ def load_config(conf_name):
                 dev = add_device(device['label'], device['type'], device['model'], connection_type, device['addr'])
                 for analysis in context.analyses:
                     analysis.add_device_traces(dev)
-                return {'status': 'success'}
             except Exception as e:
                 print(e)
                 return {'status': 'fail', 'message': 'Не удалось добавить прибор'}
+    
+    return {'status': 'success'}
         

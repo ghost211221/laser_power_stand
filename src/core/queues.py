@@ -23,3 +23,7 @@ class TasksQueue(object):
 
     def get(self, timeout=None):
         return self.__queue.get(timeout=timeout)
+    
+    def clear(self):
+        with self.__queue.mutex:
+            self.__queue.queue.clear()

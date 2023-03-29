@@ -19,6 +19,9 @@ class AbstractAnalyze(metaclass=ABCMeta):
     emitter_ready = False
     should_plot = True
 
+    def __init__(self):
+        self.traces = []
+
     def set_wavelen(self, value):
         self.wavelen = value
 

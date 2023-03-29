@@ -31,6 +31,13 @@ $( document ).ready(function() {
         home_panel_handler.update_device();
     })
 
+    $(single_measure.meters_modal).on('shown.bs.modal', function(){
+        single_measure.nest_trees();
+    });
+
+    $(scan_measure.meters_modal).on('shown.bs.modal', function(){
+        scan_measure.nest_trees();
+    });
 
     $('#sm_set_meters_btn').click(function() {
         single_measure.set_meters()
@@ -91,15 +98,19 @@ $( document ).ready(function() {
             scan_measure.set_power($(scan_measure.power_input).val());
         }
     });
-    
-    $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
-    $(cont_measure.emitter_select).change(function() {cont_measure.set_emitter() })
-    $(scan_measure.emitter_select).change(function() {scan_measure.set_emitter() })
+
 
     single_measure.init_plot();
     single_measure.init_jstree();
     scan_measure.init_plot();
     scan_measure.init_jstree();
+
+    $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
+    $(cont_measure.emitter_select).change(function() {cont_measure.set_emitter() })
+    $(scan_measure.emitter_select).change(function() {scan_measure.set_emitter() })  
+
+    single_measure.nest_trees();
+    scan_measure.nest_trees();
 
     cont_measure.render_devices();
 
@@ -952,6 +963,35 @@ class SingleMeasure extends Measure {
       this.run_control_btn = '#sm_start_meas'
       this.meters_modal = '#sm_devices_modal'
       this.clear_traces_btn = '#sm_clear_traces'
+    }
+
+    async run_analysis() {
+        if (this.meters.length === 0) {
+            alert('Не выбран ни один прибор для анализа');
+            return
+        }
+
+        this.set_wavelen_start();
+        this.set_wavelen_stop();
+        this.set_wavelen_step();
+
+        this.set_wavelen_range();
+        // this.clear_traces();
+        $(this.run_control_btn).attr('mode', 'stop');
+        $(this.run_control_btn).text('Остановить');
+        await eel.run_analysis(this.analysis_name)().then(response => {
+        })
+        
+        $(this.run_control_btn).text('Начать измерение');
+        $(this.run_control_btn).attr('mode', 'start');
+
+    }
+
+    async stop_analysis() {
+        $(this.run_control_btn).text('Начать измерение');
+        $(this.run_control_btn).attr('mode', 'start');
+        await eel.stop_analysis(this.analysis_name)().then(response => {
+        })
     }
 
   }

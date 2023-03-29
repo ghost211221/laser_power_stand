@@ -84,6 +84,12 @@ class Com():
             if cmd_dict.get('rw') == rw and cmd_dict.get('cmd') == cmd_ and cmd_dict.get('data') == data:
                 return cmd_dict.get('ans').encode()
             
+        if rw == 0  and cmd_ == 0x58:
+            return bytes(0xD6, 0x58, 0x00, 0x06)
+            
+        if rw == 0  and cmd_ == 0x0B:
+            return bytes(0x24, 0x0B, 0x10, 0x6A)
+            
         if rw == 1 and cmd_ == 49:
             uut.power = data / 100
             
