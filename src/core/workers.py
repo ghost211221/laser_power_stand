@@ -46,7 +46,7 @@ def task_processing_worker():
             
     while not c.exit_mode:
         try:
-            # get task and create Thread
+            # get task and create Thread``
             data = tq.get(timeout=0.1)
             for device_lab in data[0]:
                 device = c.get_device_by_lab(device_lab)
@@ -80,7 +80,7 @@ def get_laser_temperature():
         dev = get_device_by_statuses_and_type(('processing', 'ready'), 'laser')
         if dev:
             try:
-                tq.put(([dev.label, ], 'get_temperature', ['callback', 'show_temp']))
+                tq.put(([dev.label, ], 'get_temperature', ['callback', 'show_temp']), priority=0)
                 # val, msg = dev.get_temperature()
                 # eel.show_temp(val, msg)
             except Exception as e:

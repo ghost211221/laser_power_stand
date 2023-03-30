@@ -18,8 +18,8 @@ class TasksQueue(object):
     def __init__(self):
         self.__queue = Queue()
 
-    def put(self, data, timeout=None):
-        self.__queue.put(data, timeout=timeout)
+    def put(self, data, priority=1, timeout=None):
+        self.__queue.put((data), timeout=timeout)
 
     def get(self, timeout=None):
         return self.__queue.get(timeout=timeout)

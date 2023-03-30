@@ -81,7 +81,7 @@ def main():
     tasks_processor.start()
 
     temp_processor = Thread(target=get_laser_temperature)
-    temp_processor.start()
+    # temp_processor.start()
 
     # status_processor = Thread(target=get_devices_status_worker)
     # status_processor.start()
