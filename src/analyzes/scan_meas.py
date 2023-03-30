@@ -48,6 +48,8 @@ class ScanMeas(AbstractAnalyze):
         self.wavelen = self.wavelen_start
         enabled = False
 
+        count = 10
+
         meters_labs = [m.label for m in self.meters]
         while self.can_run and self.wavelen <= self.wavelen_stop:
             
@@ -62,6 +64,12 @@ class ScanMeas(AbstractAnalyze):
 
             # make measure
             tq.put((meters_labs, 'get_power', ['callback', 'add_measres_to_traces', 'analyse', 'scan_meas']))
+
+            if count > 0:
+                count -= 1
+            else:
+                tq.put(([self.emitter.label, ], 'get_temperature', ['callback', 'show_temp']))
+                count = 10
             
             self.wavelen += self.wavelen_step
 

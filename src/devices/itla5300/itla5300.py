@@ -328,8 +328,8 @@ class ITLA5300(AbstractDevice):
         if not self.connection or not self.connection.connected:
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
-        # cmd = (0, 67, 0)
-        cmd = (0, 0x58, 0)
+        cmd = (0, 67, 0)
+        # cmd = (0, 0x58, 0)
 
         # put to regs
         self.q.put(f'\nGetting temperature {self.dev_name}')
@@ -347,29 +347,49 @@ class ITLA5300(AbstractDevice):
             self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
             return -1, 'failed to get temperatue'
         
-        status, n = self.__helper.decode_response(ans)
+        status, val = self.__helper.decode_response(ans)
+        if status == 0:
+            return round(val / 100, 2), ''
+        
+        cmd = (1, 0x32, 2)
+        self.__helper.setRW(cmd[0])
+        self.__helper.setRegData(cmd[2])
+        self.__helper.setRegAddr(cmd[1])
+        bytes_ = self.__helper.genData()
+        try:
+            ans = self.io(bytes_)
+            self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+            log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+        except Exception as e:
+            log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+            self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+            return -1, 'failed to get temperatue'
+        
+        return '', ''
 
-        cmd = (0, 0x0B, 0)
-        temps = []
-        while n > 0:
-            self.__helper.setRW(cmd[0])
-            self.__helper.setRegData(cmd[2])
-            self.__helper.setRegAddr(cmd[1])
-            bytes_ = self.__helper.genData()
-            try:
-                ans = self.io(bytes_)
-                self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
-                log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
-            except Exception as e:
-                log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-                self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-                return -1, 'failed to get temperatue'
+        # status, n = self.__helper.decode_response(ans)
 
-            status, val = self.__helper.decode_response(ans)
-            temps.append(val)
-            n -= 2
+        # cmd = (0, 0x0B, 0)
+        # temps = []
+        # while n > 0:
+        #     self.__helper.setRW(cmd[0])
+        #     self.__helper.setRegData(cmd[2])
+        #     self.__helper.setRegAddr(cmd[1])
+        #     bytes_ = self.__helper.genData()
+        #     try:
+        #         ans = self.io(bytes_)
+        #         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+        #         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes_)}\nrecieved: {ans}')
+        #     except Exception as e:
+        #         log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+        #         self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
+        #         return -1, 'failed to get temperatue'
+
+        #     status, val = self.__helper.decode_response(ans)
+        #     temps.append(val)
+        #     n -= 2
             
-        return round(max(temps) / 100, 2), ''
+        # return round(max(temps) / 100, 2), ''
 
 
 

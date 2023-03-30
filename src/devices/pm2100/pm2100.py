@@ -16,6 +16,7 @@ class PM2100(AbstractDevice):
     dev_name = 'PM2100'
     dev_type = 'power_meter'
     default_addr = '192.168.1.161:5000'
+    modules = 5
     chanels = 4
 
     def __init__(self, label):

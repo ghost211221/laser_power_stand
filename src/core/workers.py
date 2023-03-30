@@ -47,7 +47,7 @@ def task_processing_worker():
     while not c.exit_mode:
         try:
             # get task and create Thread``
-            data = tq.get(timeout=0.1)
+            priority, data = tq.get(timeout=0.1)
             for device_lab in data[0]:
                 device = c.get_device_by_lab(device_lab)
                 try:
