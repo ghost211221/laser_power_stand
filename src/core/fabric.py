@@ -23,15 +23,15 @@ def enumerate_entities(path: str):
             modules.append(importlib.import_module(f'{path_}.{dir_name}.{dir_name}'))
     except ModuleNotFoundError:
         if 'connections' in path:
-            import src.core.connections.com.com as Com
-            import src.core.connections.socket.socket as Socket
-            import src.core.connections.visa.visa as Visa
+            import core.connections.com.com as Com
+            import core.connections.socket.socket as Socket
+            import core.connections.visa.visa as Visa
 
             modules = [Com, Socket, Visa]
 
         elif 'devices' in path:
-            import src.devices.itla5300.itla5300 as ITLA5300
-            import src.devices.pm2100.pm2100 as PM2100
+            import devices.itla5300.itla5300 as ITLA5300
+            import devices.pm2100.pm2100 as PM2100
 
             modules = [ITLA5300, PM2100]
 

@@ -2,10 +2,10 @@ import logging
 
 
 from ..abstract import AbstractDevice
-from src.core.context import Context
-from src.core.exceptions import ConnectionError
+from core.context import Context
+from core.exceptions import ConnectionError
 
-from src.devices.decorators import process_status
+from devices.decorators import process_status
 
 log = logging.getLogger(__name__)
 

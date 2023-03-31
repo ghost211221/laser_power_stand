@@ -1,6 +1,6 @@
 import eel
 
-from src.core.context import Context
+from core.context import Context
 
 
 c = Context()
@@ -18,7 +18,7 @@ def add_measres_to_traces(res, device, *args):
 
     if analyse_name == None:
         raise Exception(f'No analyse found during measres to traces')
-             
+
     analyse = c.get_analyse_by_name(analyse_name=analyse_name)
     for ch, r in enumerate(res):
         trace_id = f'{device.label}__{ch}'

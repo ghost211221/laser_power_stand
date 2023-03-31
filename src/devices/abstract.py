@@ -1,11 +1,11 @@
 from abc import ABCMeta, abstractmethod
 import logging
 
-from src.core.context import Context
-from src.core.exceptions import ConnectionClassNotFoundError, ConnectionError
-from src.core.logs.log import LoggingQueue
+from core.context import Context
+from core.exceptions import ConnectionClassNotFoundError, ConnectionError
+from core.logs.log import LoggingQueue
 
-from src.devices.decorators import process_status
+from devices.decorators import process_status
 
 log = logging.getLogger(__name__)
 context = Context()

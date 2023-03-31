@@ -4,8 +4,8 @@ import serial.tools.list_ports
 
 import eel
 
-import src.core.callbacks as cb
-from src.core.context import Context
+import core.callbacks as cb
+from core.context import Context
 
 
 context = Context()

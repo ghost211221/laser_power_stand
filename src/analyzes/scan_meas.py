@@ -4,9 +4,9 @@ from threading import Thread
 from itertools import chain
 
 from .abstract import AbstractAnalyze
-from src.core.utils import plot_traces
+from core.utils import plot_traces
 
-from src.core.queues import TasksQueue
+from core.queues import TasksQueue
 
 
 tq = TasksQueue()
@@ -52,7 +52,7 @@ class ScanMeas(AbstractAnalyze):
 
         meters_labs = [m.label for m in self.meters]
         while self.can_run and self.wavelen <= self.wavelen_stop:
-            
+
             for device in chain([self.emitter,], self.meters):
                 tq.put((device.label, 'set_wavelen', ['value', self.wavelen]))
                 tq.put((device.label, 'set_power', ['value', self.power]))

@@ -1,11 +1,11 @@
 import eel
 
-from src.core.consts import CONNECTIONS_TYPES
-from src.core.context import Context
-from src.core.exceptions import ConnectionError
-from src.core.fabric import add_device
-from src.core.utils import get_devices_list, get_devices_models_list, get_devices_labels_list, get_device_by_label, get_comports_list
-from src.core.queues import TasksQueue
+from core.consts import CONNECTIONS_TYPES
+from core.context import Context
+from core.exceptions import ConnectionError
+from core.fabric import add_device
+from core.utils import get_devices_list, get_devices_models_list, get_devices_labels_list, get_device_by_label, get_comports_list
+from core.queues import TasksQueue
 
 
 context = Context()

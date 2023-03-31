@@ -2,7 +2,7 @@ from itertools import chain
 
 from .abstract import AbstractAnalyze
 
-from src.core.queues import TasksQueue
+from core.queues import TasksQueue
 
 
 tq = TasksQueue()
