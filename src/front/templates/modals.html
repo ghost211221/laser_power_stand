@@ -203,21 +203,20 @@
 
 
 <!-- load config -->
-<div class="modal fade" id="load_config_modal" tabindex="-1" >
+<div class="modal fade" id="load_config_modal" tabindex="-1" style="width: 30vw !important;">
     <div class="modal-dialog modal-md">
-        <div class="modal-content">
+        <div class="modal-content bg-white">
             <div class="modal-header">
                 <h5 class="modal-title">Конфигурации</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body bg-light">
                 <div class="alert alert-danger" role="alert" id="list_config_errors" style="display: none"></div>
-                <div class="input-group mb-3" style="height: 30vh">
-                    <div class="list-group" id="configs_list">
-
-                    </div>
+                <div class="input-group mb-3" style="height: 30vh; overflow-y: auto;">
+                    <div class="list-group border" id="configs_list" style="width: 100% !important;"></div>
+                </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer bg-white">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                 <button type="button" class="btn btn-primary" id="load_config_btn">Загрузить</button>
             </div>
