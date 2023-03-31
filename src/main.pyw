@@ -11,13 +11,13 @@ from  middle.analyses_views import *
 from  middle.log_views import *
 from  middle.header_views import *
 
-from src.analyzes.single_meas import SingleMeas
-from src.analyzes.cont_meas import ContMeas
-from src.analyzes.scan_meas import ScanMeas
-from src.core.context import Context
-from src.core.fabric import enumerate_entities, get_class_from_imported_module
-from src.core.logs.log import init_log
-from src.core.workers import log_processing_worker, task_processing_worker, get_devices_status_worker, get_laser_temperature
+from analyzes.single_meas import SingleMeas
+from analyzes.cont_meas import ContMeas
+from analyzes.scan_meas import ScanMeas
+from core.context import Context
+from core.fabric import enumerate_entities, get_class_from_imported_module
+from core.logs.log import init_log
+from core.workers import log_processing_worker, task_processing_worker, get_devices_status_worker, get_laser_temperature
 
 
 context = Context()

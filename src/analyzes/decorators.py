@@ -1,6 +1,6 @@
 from functools import wraps
 
-from src.core.utils import plot_traces
+from core.utils import plot_traces
 
 def plot_results(fn):
     @wraps(fn)

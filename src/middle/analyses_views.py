@@ -4,7 +4,7 @@ import csv
 
 import eel
 
-from src.core.context import Context
+from core.context import Context
 
 
 c = Context()
@@ -132,7 +132,7 @@ def extract_traces(analysis_name, meters):
     traces = [f'{device["device"]}__{device["channel"]}' for device in meters]
     if not analysis_name:
         return {'status': 'fail', 'message': 'no analysis'}
-    
+
     if not traces:
         return {'status': 'fail', 'message': 'no traces'}
 
@@ -164,7 +164,7 @@ def extract_traces(analysis_name, meters):
                 if trace.get('id') not in traces:
                     continue
 
-                row.append(trace['data'][w])            
+                row.append(trace['data'][w])
 
             writer.writerow(row)
-            
+

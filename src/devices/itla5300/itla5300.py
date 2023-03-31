@@ -7,11 +7,11 @@ import time
 import yaml
 
 from ..abstract import AbstractDevice
-from src.core.context import Context
-from src.core.exceptions import ConnectionError
-from src.core.utils import mW_to_dBm
+from core.context import Context
+from core.exceptions import ConnectionError
+from core.utils import mW_to_dBm
 
-from src.devices.decorators import process_status, need_block
+from devices.decorators import process_status, need_block
 
 log = logging.getLogger(__name__)
 c = Context()
@@ -248,11 +248,11 @@ class ITLA5300(AbstractDevice):
             except Exception as e:
                 log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
                 self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
-        
+
         status, val = self.get_beam_state()
         if status != 0:
             return 'Failed to enable beam'
-     
+
         while block and val != 8:
             status, val = self.get_beam_state()
             time.sleep(0.01)
@@ -305,12 +305,12 @@ class ITLA5300(AbstractDevice):
             status, state =  self.__helper.decode_response(ans)
 
             return status, state == 8
-        
+
         except Exception as e:
             log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
             self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
 
-            return -1, False            
+            return -1, False
 
     def can_set_wavelen(self, value):
         if value and isinstance(value, (int, float)):
@@ -342,7 +342,7 @@ class ITLA5300(AbstractDevice):
             log.exception(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
             self.q.put(f'failed to communicate {self.dev_name} on {self.dev_addr}.\nError:\n{e}')
             return -1, 'failed to get temperatue'
-        
+
         cmd = (0, 0x0B, 0)
 
         self.__helper.setRW(cmd[0])

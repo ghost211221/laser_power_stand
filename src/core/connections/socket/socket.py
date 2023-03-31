@@ -1,6 +1,6 @@
 from socket import socket, AF_INET, SOCK_STREAM
 
-from src.core.exceptions import ConnectionError
+from core.exceptions import ConnectionError
 from ..abstract import AbstractConnection
 
 # TODO: add log

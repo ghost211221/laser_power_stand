@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from src.analyzes.decorators import plot_results
+from analyzes.decorators import plot_results
 
 class Replace():
     pass
@@ -62,13 +62,13 @@ class AbstractAnalyze(metaclass=ABCMeta):
                         self.traces[i] = Replace()
                 except Exception:
                     pass
-                
+
         self.traces = list(filter(lambda t: not isinstance(t, Replace), self.traces))
 
     @plot_results
     def plot(self):
         pass
-    
+
     def add_values_to_trace(self, trace_id, x, y):
         for trace in self.traces:
             if trace.get('id') == trace_id:

@@ -5,7 +5,7 @@ from itertools import chain
 
 from .abstract import AbstractAnalyze
 
-from src.core.queues import TasksQueue
+from core.queues import TasksQueue
 
 
 tq = TasksQueue()
@@ -46,11 +46,11 @@ class ContMeas(AbstractAnalyze):
 
         while self.can_run:
             sleep(1)
-            
+
             # make measure
             meters_labs = [m.label for m in self.meters]
             tq.put((meters_labs, 'get_power', ['callback', 'push_cont_data']))
-            
+
         # disable laser
         tq.put(([self.emitter.label, ], 'set_beam_off', []))
 
