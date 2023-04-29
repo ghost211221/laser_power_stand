@@ -384,6 +384,8 @@ let home_panel_handler = {
         } else if (status === 'error') {
             $(lamp).addClass('lamp-error');
             let btn_selector = `#connect__${device_name}`;
+            $(btn_selector).text('Подключиться');
+            $(btn_selector).prop('mode', 'connect');
             $(btn_selector).prop('disabled', false);
         } else if (status === 'processing') {
             $(lamp).addClass('lamp-busy')

@@ -1,4 +1,4 @@
-from socket import socket, AF_INET, SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM, gethostbyaddr, herror
 
 from core.exceptions import ConnectionError
 from ..abstract import AbstractConnection
@@ -25,6 +25,10 @@ class Socket(AbstractConnection):
         self.__sock = socket(AF_INET, SOCK_STREAM)
         self.__sock.settimeout(self.__timeout)
         self.__sock.connect_ex((self.__ip, int(self.__port)))
+
+        # check that host is in network
+        gethostbyaddr(self.__ip)
+
         self.connected = True
 
     def close(self):

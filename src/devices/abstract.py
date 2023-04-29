@@ -64,6 +64,7 @@ class AbstractDevice(metaclass=ABCMeta):
 
         self.q.put(f'\n{self.dev_name} connected to {self.dev_addr}')
 
+
     @process_status
     def close(self, *args, **kwargs):
         self.connection.close()
