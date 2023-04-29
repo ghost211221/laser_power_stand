@@ -9,3 +9,7 @@ class ConnectionClassNotFoundError(Exception):
 class DeviceNotFoundError(Exception):
     """Base class for other exceptions"""
     pass
+
+class DeviceSetUpError(Exception):
+    """Base class for other exceptions"""
+    pass

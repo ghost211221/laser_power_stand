@@ -1,3 +1,4 @@
+import re
 import yaml
 
 from src.core.exceptions import ConnectionError
@@ -43,8 +44,8 @@ class Socket():
         if 'IDN?' in cmd:
             return 'FIBERPRO,MCOPM,0,Ver. X.y\r\n'
         
-        if 'READ? 0' in cmd:
-            return ','.join([str(uut.power), str(uut.power), str(uut.power), str(uut.power)]).encode()
+        if re.search(r'^READ\? \d', cmd):
+            return ','.join([str(uut.power) for _ in range(4)]).encode()
             
         
         

@@ -50,12 +50,14 @@ def enitity_fabric(classes_dict, field_name, field_value):
         if getattr(class_, field_name) == field_value:
             return class_()
 
-def add_device(device_name, device_type, device_model, device_connection_type, device_addr):
+def add_device(device_name, device_type, device_model, device_connection_type, device_addr, device_modules=None):
     """Add new device object"""
     for k, v in context.devices_classes.items():
         if k == device_model:
             device = v(device_name)
             device.set_connection(device_connection_type)
             device.set_addr(device_addr)
+            if device_modules:
+                device.set_modules(device_modules)
             context.devices.append(device)
             return device

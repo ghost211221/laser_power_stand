@@ -24,6 +24,7 @@ class AbstractDevice(metaclass=ABCMeta):
     chanels = 1
     block_status = False
     wavelen = None
+    modules = 5
 
     valid_statuses = ['init', 'processing', 'ready', 'error']
 

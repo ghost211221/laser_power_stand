@@ -3,7 +3,7 @@ import logging
 
 from ..abstract import AbstractDevice
 from core.context import Context
-from core.exceptions import ConnectionError
+from core.exceptions import ConnectionError, DeviceSetUpError
 
 from devices.decorators import process_status
 
@@ -25,6 +25,11 @@ class PM2100(AbstractDevice):
 
     def set_timeout(self, timeout):
         self.timeout = timeout
+
+    def set_modules(self, modules):
+        if modules < 1 or modules > 5:
+            raise DeviceSetUpError(f'Can`t set up number of modules: {modules}')
+        self.modules = modules
 
     @process_status
     def init(self, *args, **kwargs):
@@ -58,12 +63,16 @@ class PM2100(AbstractDevice):
 
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
 
-        cmd = 'READ? 0'
-        ans = self.io(f'{cmd}\r\n')
-        self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
-        log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
+        ret = []
+        for i in range(self.modules):
+            cmd = f'READ? {i}'
+            ans = self.io(f'{cmd}\r\n')
+            self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
+            log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
 
-        return ans.decode().strip().split(',')
+            ret.append(ans.decode().strip().split(','))
+        
+        return ret
 
     def set_wavelen(self, wave_len, *args, **kwargs):
         self.wavelen = wave_len

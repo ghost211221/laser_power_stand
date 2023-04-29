@@ -25,7 +25,7 @@ def e_get_added_devices():
     return get_devices_list()
 
 @eel.expose
-def e_add_new_device(device_name, device_type, device_model, device_connection_type, device_addr):
+def e_add_new_device(device_name, device_type, device_model, device_connection_type, device_addr, device_modules=None):
     if device_name is None or device_name == '':
         return {'status': 'fail', 'message': 'Не указана метка прибора'}
     if device_type is None or device_type == '':
@@ -47,7 +47,7 @@ def e_add_new_device(device_name, device_type, device_model, device_connection_t
         return {'status': 'fail', 'message': f'Неизвестный тип подключения: {device_connection_type}'}
 
     try:
-        device = add_device(device_name, device_type, device_model, connection_type, device_addr)
+        device = add_device(device_name, device_type, device_model, connection_type, device_addr, device_modules)
         for analysis in context.analyses:
             analysis.add_device_traces(device)
         return {'status': 'success'}
@@ -64,7 +64,7 @@ def e_get_device_info(device_name):
     if not device:
         return {'status': 'fail', 'message': f'Не найден прибор с меткой {device_name}'}
 
-    return {
+    ret =  {
         'status': 'success',
         'device_name': device.label,
         'device_type': device.dev_type,
@@ -74,6 +74,11 @@ def e_get_device_info(device_name):
         'device_status': device.status,
         'device_chanels': device.chanels
     }
+
+    if getattr(device, 'modules', None):
+        ret['modules'] = device.modules
+
+    return ret
 
 @eel.expose
 def e_get_connections_translations():

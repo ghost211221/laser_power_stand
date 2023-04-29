@@ -24,6 +24,7 @@ $( document ).ready(function() {
             $('#device_model').val(),
             $('#device_connection_type').val(),
             selected_conn_type === 'COM' ? $('#device_addr_sel').val() : $('#device_addr_line').val(),
+            $('#device_model').val() === 'PM21000' ? $('#pm2100_modules').val() : null
         );
     })
 
@@ -208,6 +209,23 @@ $( document ).ready(function() {
         eel.extract_traces(analysis, selected_traces)();
     });
 
+
+    $('#device_model').change(function() {
+        if ($(this).val() === 'PM2100') {
+            $('.pm2100_modules_section').show();
+        } else {
+            $('.pm2100_modules_section').hide();
+        }
+    });
+
+    $('#options__device_model').change(function() {
+        if ($(this).val() === 'PM2100') {
+            $('.pm2100_modules_section').show();
+        } else {
+            $('.pm2100_modules_section').hide();
+        }
+    });
+
 });
 
 eel.expose(set_device_status);
@@ -297,6 +315,7 @@ let home_panel_handler = {
         $('#device_connection_type').prop("disabled", true);
         $('#device_addr_line').prop("disabled", true);
         $('#device_addr_sel').prop("disabled", true);
+        $('.pm2100_modules_section').hide();
     },
 
     get_connections_translation_dict: async function() {
@@ -304,14 +323,14 @@ let home_panel_handler = {
         this.connections_translation_dict = res;
     },
 
-    add_new_device: function(pass, device_name, device_type, device_model, device_connection_type, device_addr) {
+    add_new_device: function(pass, device_name, device_type, device_model, device_connection_type, device_addr, modules=null) {
         if (!pass) {
             // validation failed, do not add device
             return
         }
 
         // add to python
-        eel.e_add_new_device(device_name, device_type, device_model, device_connection_type, device_addr)().then(response =>  {
+        eel.e_add_new_device(device_name, device_type, device_model, device_connection_type, device_addr, modules)().then(response =>  {
             if (response.status === 'success') {
                 this.clear_modal();
                 this.reinit_modal();
@@ -326,10 +345,12 @@ let home_panel_handler = {
     update_device: function() {
         let selected_conn_type = $('#options__device_conntection').val();
         let addr = selected_conn_type === 'COM' ? $('#options__device_addr_sel').val() : $('#options__device_addr_line').val();
+        let modules = $('$options__device_model').val() === 'PM2100' ? $('#optins__pm2100_modules').val() : null;
         eel.e_update_device(
             $('#options__device_name').val(),
             $("#options__device_conntection").val(),
-            addr
+            addr,
+            modules
         )().then(response => {
             if (response.status === 'success') {
                 this.render_devices();
@@ -352,7 +373,7 @@ let home_panel_handler = {
             $(btn_selector).text('Подключиться');
             $(btn_selector).prop('mode', 'connect');
             $(btn_selector).prop('disabled', false);
-            that.waiting_connection_devices = that.waiting_connection_devices.push(device_name)
+            this.waiting_connection_devices = this.waiting_connection_devices.push(device_name)
 
             single_measure.nest_emitters();
             single_measure.nest_trees();
@@ -371,7 +392,7 @@ let home_panel_handler = {
             $(btn_selector).text('Отключиться');
             $(btn_selector).attr('mode', 'disconnect');
             $(btn_selector).prop('disabled', false);
-            that.waiting_connection_devices = that.waiting_connection_devices.filter(function(e) { return e !== device_name })
+            this.waiting_connection_devices = this.waiting_connection_devices.filter(function(e) { return e !== device_name })
 
             single_measure.nest_emitters();
             single_measure.nest_trees();
@@ -425,17 +446,10 @@ let home_panel_handler = {
         $(btn_selector).click(function() {
             let dev_name = $(this).attr('dev_name');
             let mode = $(this).attr('mode');
-            // that.waiting_connection_devices.append(dev_name);
-            // $(this).prop('disabled', true);
             eel.e_connect_device(dev_name, mode)().then(response => {
                 if (response.status === 'success') {
                     if (mode === 'connect') {
-
-                        // $(btn_selector).text('Отключиться');
-                        // $(btn_selector).attr('mode', 'disconnect');
                     } else if (mode === 'disconnect') {
-                        // $(btn_selector).text('Подключиться');
-                        // $(btn_selector).attr('mode', 'connect');
                     }
                 } else if (response.status === 'fail') {
                     $(lamp).addClass('lamp-error');
@@ -482,6 +496,9 @@ let home_panel_handler = {
                     $('#options__device_addr_line').show();
                     $('#options__device_addr_line').val(device.device_addr);
                     $('#options__device_addr_sel').hide();
+                }
+                if (device.hasOwnProperty('modules')) {
+                    $('#optins__pm2100_modules').val(device.modules)
                 }
                 // $('#options__device_addr').val(device.device_addr)
             });
@@ -635,6 +652,10 @@ let home_panel_handler = {
             messages.push('Не указан адрес/порт для связи с прибором')
         }
 
+        if ($('#pm2100_modules').val() > 5 || $('#pm2100_modules').val() < 1) {
+            messages.push('Количество модулей не может быть меньше 1 или больше 5')
+        }
+
 
         // check that lable in unique
         const labels = await eel.e_get_devices_labels_list()()
@@ -731,7 +752,7 @@ class Measure {
             this.layout.xaxis.autorange = false
         }
         for (let meter of this.meters) {
-            let trace_id = `${meter.device}__${meter.channel}`;
+            let trace_id = `${meter.device}__${meter.module}__${meter.channel}`;
             for (let trace of traces) {
                 if (trace_id === trace.id) {
                     this.traces.push({
@@ -843,11 +864,13 @@ class Measure {
                 continue
             }
             let children = [];
-            for (let i = 1; i <= device.chanels; i++) {
-                children.push({
-                    'id': `device__${device.label}__ch__${i-1}`,
-                    'text': `Канал ${i}`
-                })
+            for (let m = 1; m < device.modules; m++) {
+                for (let i = 1; i <= device.chanels; i++) {
+                    children.push({
+                        'id': `device__${device.label}__m__${m}__ch__${i-1}`,
+                        'text': `Модуль ${m} Канал ${i}`
+                    })
+                }
             }
             let subdata = {
                 'id': `device__${device.label}`,
@@ -887,7 +910,7 @@ class Measure {
                 continue
             }
             let arr = record.id.split('__');
-            this.meters.push({'device': arr[1], 'channel': arr[3]})
+            this.meters.push({'device': arr[1], 'module': arr[3],'channel': arr[5]})
         }
         eel.set_meters(this.analysis_name, this.meters)()
         $(this.meters_modal).modal('hide');
@@ -1040,40 +1063,43 @@ class ContMeasure extends Measure {
                 if (device.type !== 'power_meter' || !device.connected) {
                     continue
                 }
-                for (let ch = 1; ch <= device.chanels; ch++) {
-                    let html_template = `
-                        <div class="m-1 card text-white bg-secondary sm-3" style="max-width: 11rem; min-width: 11rem;">
-                            <div class="card-header">
-                                <div class="d-flex justify-content-between">
-                                    ${device.label}<br>
-                                    Канал ${ch}
+                for (let m = 1; m <= device.modules; m++) {
+                    for (let ch = 1; ch <= device.chanels; ch++) {
+                        let html_template = `
+                            <div class="m-1 card text-white bg-secondary sm-3" style="max-width: 11rem; min-width: 11rem;">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        ${device.label}<br>
+                                        Модуль ${m}
+                                        Канал ${ch}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-check">
-                                    <input class="form-check-input cm_enable_cb" type="checkbox" value="" id="cm__${device.label}__${ch-1}">
-                                    <label class="form-check-label" for="cm__${device.label}__${ch}">
-                                        Включить
-                                    </label>
-                                </div>
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input cm_enable_cb" type="checkbox" value="" id="cm__${device.label}__${m}__${ch-1}">
+                                        <label class="form-check-label" for="cm__${device.label}__${m}__${ch}">
+                                            Включить
+                                        </label>
+                                    </div>
 
-                                <div class="input-group input-group-sm">
-                                    <input type="number" class="form-control" id="cm__${device.label}__${ch-1}__label" value="0">
-                                    <div class="input-group-append">
-                                        <select class="btn btn-dark dropdown-toggle cm_units" device="${device.label}" ch="${ch-1}" id="cm__${device.label}__${ch-1}__unit" style="padding-left: 0px; padding-right: 0px; width: 55px;">
-                                            <option value="mWt">мВт</option >
-                                            <option valuse="dBm" selected>dBm</option >
-                                        </select>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" class="form-control" id="cm__${device.label}__${m-1}__${ch-1}__label" value="0">
+                                        <div class="input-group-append">
+                                            <select class="btn btn-dark dropdown-toggle cm_units" device="${device.label}" module="${m}" ch="${ch-1}" id="cm__${device.label}__${m-1}__${ch-1}__unit" style="padding-left: 0px; padding-right: 0px; width: 55px;">
+                                                <option value="mWt">мВт</option >
+                                                <option valuse="dBm" selected>dBm</option >
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    `
-                    $(this.devices_panel).append(html_template);
-                    for (let meter of this.meters) {
-                        if (meter.device === device.label && meter.channel == ch-1) {
-                            $(`#cm__${device.label}__${ch-1}`).prop("checked", true);
-                            $(`#cm__${device.label}__${ch-1}__unit`).val(meter.unit);
+                        `
+                        $(this.devices_panel).append(html_template);
+                        for (let meter of this.meters) {
+                            if (meter.device === device.label && meter.channel == ch-1 && meter.module == m-1) {
+                                $(`#cm__${device.label}__${m}__${ch-1}`).prop("checked", true);
+                                $(`#cm__${device.label}__${m}__${ch-1}__unit`).val(meter.unit);
+                            }
                         }
                     }
                 }
@@ -1092,8 +1118,8 @@ class ContMeasure extends Measure {
         $(this.meters_class).each(function() {
             if ($(this).prop('checked')) {
                 let arr = $(this).attr('id').split('__');
-                let unit = $(`#cm__${arr[1]}__${arr[2]}__unit`).val()
-                that.meters.push({'device': arr[1], 'channel': arr[2], 'unit': unit})
+                let unit = $(`#cm__${arr[1]}__${arr[2]}__${arr[3]}__unit`).val()
+                that.meters.push({'device': arr[1], 'module': arr[2], 'channel': arr[3], 'unit': unit})
             }
         })
         eel.set_meters(this.analysis_name, this.meters)()
@@ -1105,7 +1131,7 @@ class ContMeasure extends Measure {
             let ch = $(this).attr('ch');
             let val = $(this).val();
             for (let meter of this.meters) {
-                if (device === meter.device && ch === meter.ch) {
+                if (device === meter.device && ch === meter.ch && m == meter.module) {
                        meter.unit = val;
                 }
             }
@@ -1117,14 +1143,15 @@ class ContMeasure extends Measure {
             for (let meter_rec of this.meters) {
                 let arr = res.id.split('__');
                 let device = arr[0];
-                let ch = arr[1];
-                if (meter_rec.device === device && meter_rec.channel == ch) {
-                    let mode = $(`#cm__${device}__${ch}__unit`).val()
+                let m = arr[1];
+                let ch = arr[2];
+                if (meter_rec.device === device && meter_rec.module == m && meter_rec.channel == ch) {
+                    let mode = $(`#cm__${device}__${m}__${ch}__unit`).val()
                     let val_to_show = res.val;
                     if (mode === 'mWt') {
                         val_to_show = dBm_to_mWt(val_to_show);
                     }
-                    $(`#cm__${device}__${ch}__label`).val(val_to_show);
+                    $(`#cm__${device}__${m}__${ch}__label`).val(val_to_show);
                 }
             }
         }

@@ -20,9 +20,11 @@ def add_measres_to_traces(res, device, *args):
         raise Exception(f'No analyse found during measres to traces')
 
     analyse = c.get_analyse_by_name(analyse_name=analyse_name)
-    for ch, r in enumerate(res):
-        trace_id = f'{device.label}__{ch}'
-        analyse.add_values_to_trace(trace_id, float(device.wavelen), float(r))
+    # for ch, r in enumerate(res):
+    for m in range(device.modules):
+        for ch in range(device.chanels):
+            trace_id = f'{device.label}__{m}__{ch}'
+            analyse.add_values_to_trace(trace_id, float(device.wavelen), float(res[m][ch]))
 
     analyse.plot()
 
@@ -31,11 +33,12 @@ def show_temp(val, *args):
 
 def push_cont_data(res, device, *args):
     data = []
-    for i in range(device.chanels):
-        data.append({
-            'id': f'{device.label}__{i}',
-            'val': res[i]
-        })
+    for m in range(device.modules):
+        for i in range(device.chanels):
+            data.append({
+                'id': f'{device.label}__{m}__{i}',
+                'val': res[4 * m + i]
+            })
 
     res = eel.show_cont_data('cont_meas', data)()
     return res

@@ -129,7 +129,13 @@ def stop_analysis(analysis_name):
 
 @eel.expose
 def extract_traces(analysis_name, meters):
-    traces = [f'{device["device"]}__{device["channel"]}' for device in meters]
+    # traces = [f'{device["device"]}__{device["channel"]}' for device in meters]
+    traces = []
+    for meter in meters:
+        for m in meter['modules']:
+            for ch in meter['channel']:
+                traces.append(f'{meter["device"]}__{m}__{ch}')
+
     if not analysis_name:
         return {'status': 'fail', 'message': 'no analysis'}
 

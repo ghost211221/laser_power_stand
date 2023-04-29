@@ -41,14 +41,15 @@ class AbstractAnalyze(metaclass=ABCMeta):
         if device.dev_type != 'power_meter':
             return
 
-        for ch in range(device.chanels):
-            self.traces.append({
-                'id': f'{device.label}__{ch}',
-                'title': f'{device.label} {ch+1}',
-                'data': {
+        for m in range(device.modules):
+            for ch in range(device.chanels):
+                self.traces.append({
+                    'id': f'{device.label}__{m}__{ch}',
+                    'title': f'{device.label} {m} {ch+1}',
+                    'data': {
 
-                }
-            })
+                    }
+                })
 
     def delete_traces(self, device):
         if device.dev_type != 'power_meter':

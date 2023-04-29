@@ -32,7 +32,7 @@ def get_devices_list():
     devices = []
 
     for device in context.devices:
-        devices.append({
+        data = {
             'label': device.label,
             'type': device.dev_type,
             'model': device.dev_name,
@@ -41,7 +41,11 @@ def get_devices_list():
             'status': device.status,
             'connected': bool(device.connection),
             'chanels': device.chanels
-        })
+        }
+        if getattr(device, 'modules', None):
+            data['modules'] = device.modules
+            
+        devices.append(data)
 
     return devices
 
