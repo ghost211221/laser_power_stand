@@ -37,7 +37,7 @@ def push_cont_data(res, device, *args):
         for i in range(device.chanels):
             data.append({
                 'id': f'{device.label}__{m}__{i}',
-                'val': res[4 * m + i]
+                'val': res[m][i]
             })
 
     res = eel.show_cont_data('cont_meas', data)()

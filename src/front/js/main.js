@@ -1078,8 +1078,8 @@ class ContMeasure extends Measure {
                                 </div>
                                 <div class="card-body">
                                     <div class="form-check">
-                                        <input class="form-check-input cm_enable_cb" type="checkbox" value="" id="cm__${device.label}__${m}__${ch-1}">
-                                        <label class="form-check-label" for="cm__${device.label}__${m}__${ch}">
+                                        <input class="form-check-input cm_enable_cb" type="checkbox" value="" id="cm__${device.label}__${m-1}__${ch-1}">
+                                        <label class="form-check-label" for="cm__${device.label}__${m-1}__${ch-1}">
                                             Включить
                                         </label>
                                     </div>
