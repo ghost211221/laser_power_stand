@@ -257,6 +257,11 @@ function show_temp(temp, msg) {
     }
 }
 
+eel.expose(toggle_run_scan_meas_btn)
+function toggle_run_scan_meas_btn() {
+    scan_measure.toggle_start_btn();
+}
+
 
 function dBm_to_mWt(dBm) {
     return 10 ** (dBm / 10)
@@ -869,7 +874,7 @@ class Measure {
             for (let m = 1; m < device.modules; m++) {
                 for (let i = 1; i <= device.chanels; i++) {
                     children.push({
-                        'id': `device__${device.label}__m__${m}__ch__${i-1}`,
+                        'id': `device__${device.label}__m__${m-1}__ch__${i-1}`,
                         'text': `Модуль ${m} Канал ${i}`
                     })
                 }
@@ -1227,6 +1232,11 @@ class ScanMeasure extends Measure {
         await eel.run_analysis(this.analysis_name)().then(response => {
         })
 
+    }
+
+    async toggle_start_btn() {
+        $(this.run_control_btn).text('Начать измерение');
+        $(this.run_control_btn).attr('mode', 'start');
     }
 
     async stop_analysis() {

@@ -54,8 +54,8 @@ class ScanMeas(AbstractAnalyze):
         while self.can_run and self.wavelen <= self.wavelen_stop:
 
             for device in chain([self.emitter,], self.meters):
-                tq.put((device.label, 'set_wavelen', ['value', self.wavelen]))
-                tq.put((device.label, 'set_power', ['value', self.power]))
+                tq.put(([device.label], 'set_wavelen', ['value', self.wavelen]))
+                tq.put(([device.label], 'set_power', ['value', self.power]))
 
             # enable laser
             if not enabled:
@@ -73,12 +73,12 @@ class ScanMeas(AbstractAnalyze):
             
             self.wavelen += self.wavelen_step
 
-        # disable laser
-        tq.put(([self.emitter.label, ], 'set_beam_off', []))
+            # disable laser
+            tq.put(([self.emitter.label, ], 'set_beam_off', []))
 
-        for device in chain([self.emitter,], self.meters):
-            device.block_status = True
-            device.set_status('ready')
+            for device in chain([self.emitter,], self.meters):
+                device.block_status = True
+                device.set_status('ready')
 
     def run(self):
         self.measure_thread = Thread(target=self.make_analyse)
