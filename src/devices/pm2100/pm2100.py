@@ -37,7 +37,7 @@ class PM2100(AbstractDevice):
             raise ConnectionError(f'Device {self.dev_name} is not connected')
 
         self.q.put(f'\nInit {self.dev_name} on {self.dev_addr}')
-        cmd = '*IDN?'
+        cmd = '*IDN?\r\n'
         ans = self.io(f'{cmd}\r\n')
         self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
         log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')
@@ -65,7 +65,7 @@ class PM2100(AbstractDevice):
 
         ret = []
         for i in range(self.modules):
-            cmd = f'READ? {i}'
+            cmd = f'READ? {i}\r\n'
             ans = self.io(f'{cmd}\r\n')
             self.q.put(f'{self.dev_name} on {self.dev_addr}\nsent: {cmd}\nrecieved: {ans}')
             log.info(f'{self.dev_name} on {self.dev_addr}\nsent: {str(bytes)}\nrecieved: {ans}')

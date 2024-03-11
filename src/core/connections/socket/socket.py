@@ -37,7 +37,7 @@ class Socket(AbstractConnection):
         self.connected = False
 
     def send(self, data):
-        self.__sock.send(data.encode('utf-8'))
+        self.__sock.send(f'{data}\r\n'.encode('utf-8'))
 
     def read(self, data):
         try:
@@ -47,7 +47,7 @@ class Socket(AbstractConnection):
             pass
 
     def io(self, data):
-        self.__sock.send(data.encode('utf-8'))
+        self.__sock.send(f'{data}\r\n'.encode('utf-8'))
         try:
             ans = self.__sock.recv(self.__package_len)
             return ans
