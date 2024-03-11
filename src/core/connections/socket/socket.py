@@ -27,7 +27,7 @@ class Socket(AbstractConnection):
         self.__sock.connect_ex((self.__ip, int(self.__port)))
 
         # check that host is in network
-        gethostbyaddr(self.__ip)
+        # gethostbyaddr(self.__ip)
 
         self.connected = True
 

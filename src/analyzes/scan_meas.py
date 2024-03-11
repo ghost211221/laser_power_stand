@@ -3,6 +3,8 @@ from threading import Thread
 
 from itertools import chain
 
+import eel
+
 from .abstract import AbstractAnalyze
 from core.utils import plot_traces
 
@@ -73,12 +75,14 @@ class ScanMeas(AbstractAnalyze):
             
             self.wavelen += self.wavelen_step
 
-            # disable laser
-            tq.put(([self.emitter.label, ], 'set_beam_off', []))
+        # disable laser
+        tq.put(([self.emitter.label, ], 'set_beam_off', []))
 
-            for device in chain([self.emitter,], self.meters):
-                device.block_status = True
-                device.set_status('ready')
+        for device in chain([self.emitter,], self.meters):
+            device.block_status = True
+            device.set_status('ready')
+
+        eel.toggle_run_scan_meas_btn()()
 
     def run(self):
         self.measure_thread = Thread(target=self.make_analyse)
