@@ -78,22 +78,22 @@ class Com():
 
     def io(self, cmd):
         # emulate real device
-        time.sleep(0.001)
+        # time.sleep(0.001)
         rw, cmd_, data = self.__decode_cmd(cmd)
         for cmd_dict in  self.__cmds:
             if cmd_dict.get('rw') == rw and cmd_dict.get('cmd') == cmd_ and cmd_dict.get('data') == data:
                 return cmd_dict.get('ans').encode()
-            
+
         if rw == 0  and cmd_ == 0x58:
             return bytes(0xD6, 0x58, 0x00, 0x06)
-            
+
         if rw == 0  and cmd_ == 0x0B:
             return bytes(0x24, 0x0B, 0x10, 0x6A)
-            
+
         if rw == 1 and cmd_ == 49:
             uut.power = data / 100
-            
-        if rw == 0 and cmd_ == 67:           
+
+        if rw == 0 and cmd_ == 67:
             return bytes([0, 67, 0, randrange(20, 80)])
 
         if rw == 1 and cmd_ == 0x32:

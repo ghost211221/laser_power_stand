@@ -72,17 +72,15 @@ class ScanMeas(AbstractAnalyze):
             # else:
             #     tq.put(([self.emitter.label, ], 'get_temperature', ['callback', 'show_temp']))
             #     count = 10
-            
+
             self.wavelen += self.wavelen_step
 
         # disable laser
-        tq.put(([self.emitter.label, ], 'set_beam_off', []))
+        tq.put(([self.emitter.label, ], 'set_beam_off', ['callback', 'switch_to_ready']))
 
         for device in chain([self.emitter,], self.meters):
             device.block_status = True
             device.set_status('ready')
-
-        eel.toggle_run_scan_meas_btn()()
 
     def run(self):
         self.measure_thread = Thread(target=self.make_analyse)

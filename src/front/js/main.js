@@ -108,7 +108,7 @@ $( document ).ready(function() {
 
     $(single_measure.emitter_select).change(function() {single_measure.set_emitter() })
     $(cont_measure.emitter_select).change(function() {cont_measure.set_emitter() })
-    $(scan_measure.emitter_select).change(function() {scan_measure.set_emitter() })  
+    $(scan_measure.emitter_select).change(function() {scan_measure.set_emitter() })
 
     single_measure.nest_trees();
     scan_measure.nest_trees();
@@ -259,7 +259,9 @@ function show_temp(temp, msg) {
 
 eel.expose(toggle_run_scan_meas_btn)
 function toggle_run_scan_meas_btn() {
-    scan_measure.toggle_start_btn();
+    $('#scm_start_meas').text('Начать измерение');
+    $('#scm_start_meas').attr('mode', 'start');
+    // scan_measure.toggle_start_btn();
 }
 
 
@@ -1024,7 +1026,7 @@ class SingleMeasure extends Measure {
         $(this.run_control_btn).text('Остановить');
         await eel.run_analysis(this.analysis_name)().then(response => {
         })
-        
+
         $(this.run_control_btn).text('Начать измерение');
         $(this.run_control_btn).attr('mode', 'start');
 
@@ -1235,8 +1237,8 @@ class ScanMeasure extends Measure {
     }
 
     async toggle_start_btn() {
-        $(this.run_control_btn).text('Начать измерение');
-        $(this.run_control_btn).attr('mode', 'start');
+        // $(this.run_control_btn).text('Начать измерение');
+        // $(this.run_control_btn).attr('mode', 'start');
     }
 
     async stop_analysis() {

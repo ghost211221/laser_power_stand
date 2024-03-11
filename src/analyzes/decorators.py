@@ -1,5 +1,7 @@
 from functools import wraps
 
+import eel
+
 from core.utils import plot_traces
 
 def plot_results(fn):

@@ -42,3 +42,6 @@ def push_cont_data(res, device, *args):
 
     res = eel.show_cont_data('cont_meas', data)()
     return res
+
+def switch_to_ready(*args):
+    eel.toggle_run_scan_meas_btn()()
